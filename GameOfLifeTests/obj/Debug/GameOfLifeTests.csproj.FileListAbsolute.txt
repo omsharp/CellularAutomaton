@@ -1,0 +1,9 @@
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLifeTests.dll
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLifeTests.pdb
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\nunit.framework.dll
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\nunit.framework.xml
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\obj\Debug\GameOfLifeTests.csprojResolveAssemblyReference.cache
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\obj\Debug\GameOfLifeTests.dll
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\obj\Debug\GameOfLifeTests.pdb
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.dll
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.pdb
