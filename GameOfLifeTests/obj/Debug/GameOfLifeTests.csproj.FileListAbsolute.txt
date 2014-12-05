@@ -7,3 +7,5 @@ F:\Work-Space\VS\GameOfLife\GameOfLifeTests\obj\Debug\GameOfLifeTests.dll
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\obj\Debug\GameOfLifeTests.pdb
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.dll
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.pdb
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\Moq.dll
+F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\Moq.xml
