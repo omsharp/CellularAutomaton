@@ -53,7 +53,7 @@ namespace GameOfLifeTests
         public void When_First_Created_Not_Raising_OnCycle_Event()
         {
             var actual = false;
-            var waitFor = _cycleInterval + 500;
+            var waitFor = _cycleInterval + 1000;
 
            _universe.OnCycle += (sender, args) => actual = true;
 
@@ -64,7 +64,7 @@ namespace GameOfLifeTests
         public void When_Start_Called_Begin_Raising_OnCycle_Event()
         {
             var actual = false;
-            var waitFor = _cycleInterval + 500;
+            var waitFor = _cycleInterval + 1000;
 
             _universe.OnCycle += (sender, args) => actual = true;
 
@@ -73,25 +73,6 @@ namespace GameOfLifeTests
             Assert.That(actual, Is.True.After(waitFor));
         }
 
-        //[Test]
-        //public void When_Pause_Called_Stop_Raising_OnCycle()
-        //{
-
-        //    var done = false;
-        //    var actual = false;
-
-        //    _controlTimer.Elapsed += (sender, args) => done = true;
-        //    _universe.OnCycle += (sender, args) => actual = true;
-
-        //    _controlTimer.Start();
-        //    _universe.Start();
-
-        //    while (!done) { } // Give the universe some extra time to raise the event.
-
-        //    _controlTimer.Dispose();
-
-        //    Assert.IsFalse(actual);
-        //}
        
     }
 }

@@ -39,7 +39,7 @@ namespace GameOfLife
             _timer.Interval  = CycleInterval;
             _timer.Elapsed   += HandleTimerTick;
             _timer.AutoReset = true;
-            _timer.Enabled = true;
+            _timer.Enabled   = true;
 
         }
 
@@ -58,6 +58,7 @@ namespace GameOfLife
 
         private void HandleTimerTick(object sender, ElapsedEventArgs e)
         {
+            throw new Exception();
             if (OnCycle != null)
                 OnCycle(this, new EventArgs());
         }
