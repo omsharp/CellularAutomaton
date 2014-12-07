@@ -19,38 +19,34 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void Row_Property_Is_Set_In_Constructor()
-        {
-            Assert.AreEqual(_row, _cell.Row);
-        }
-
-        [Test]
-        public void Column_Property_Is_Set_In_Constructor()
-        {
-            Assert.AreEqual(_column, _cell.Column);
-        }
-
-        [Test]
-        public void When_Cell_First_Created_Generation_Is_Zero()
+        public void Cell_FirstCreated_GenerationIsZero()
         {
             Assert.AreEqual(_cell.Generation, 0);
         }
 
         [Test]
-        public void When_Cell_First_Created_Status_Is_Inactive()
+        public void Status_CellFirstCreated_StatusIsInactive()
         {
             Assert.AreEqual(CellStatus.Inactive, _cell.Status);
         }
 
         [Test]
-        public void When_Cell_Revived_Status_Is_Alive()
+        public void Revive_StatusNotAlive_ChangeStatusToAlive()
         {
             _cell.Revive();
             Assert.AreEqual(_cell.Status, CellStatus.Alive);
         }
 
         [Test]
-        public void When_Cell_Revived_Generation_Set_To_One()
+        public void Kill_StatusNotDead_ChangeStatusToDead()
+        {
+            _cell.Revive();
+            _cell.Kill();
+            Assert.AreEqual(_cell.Status, CellStatus.Dead);
+        }
+
+        [Test]
+        public void Revive_StatusNotAlive_GenerationSetToOne()
         {
             _cell.Kill();
             _cell.Revive();
@@ -58,7 +54,7 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void Revive_Should_Not_Change_Generation_When_Status_Is_Alive()
+        public void Revive_StatusIsAlive_GenerationNotChanged()
         {
             _cell.Revive(); // Status = Alive  /  Generation = 1
             _cell.MoveToNextGeneration(); // Status = Alive / Generation = 2 
@@ -68,7 +64,7 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void When_MoveToNextGeneration_Called_Generation_Increase_By_One()
+        public void MoveToNextGeneration_NormalCall_GenerationIncreasedByOne()
         {
             var beforeGeneration = _cell.Generation;
             _cell.MoveToNextGeneration();
@@ -76,7 +72,7 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void MoveToNextGeneration_Should_Return_Generation_After_Increaseing()
+        public void MoveToNextGeneration_NormalCall_ReturnsGenerationAfterIncreaseing()
         {
             _cell.Revive(); // 1
             _cell.MoveToNextGeneration(); // 2
@@ -84,14 +80,7 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void When_Cell_Killed_Status_Is_Dead()
-        {
-            _cell.Kill();
-            Assert.AreEqual(_cell.Status, CellStatus.Dead);
-        }
-
-        [Test]
-        public void When_Cell_Killed_Generation_Set_To_Zero()
+        public void Kill_GenerationIsNotZero_SetGenerationToZero()
         {
             _cell.Revive();
             _cell.MoveToNextGeneration();
@@ -100,45 +89,53 @@ namespace GameOfLifeTests
         }
 
         [Test]
-        public void Property_TimesRevived_Returns_Number_Of_Revives()
+        public void TimesRevived_Get_NumberOfRevives()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 5; i++)
             {
                 _cell.Revive();
                 _cell.Kill();
             }
 
-            Assert.AreEqual(_cell.TimesRevived, 3);
+            Assert.AreEqual(_cell.TimesRevived, 5);
         }
 
         [Test]
-        public void Property_TimesKilled_Returns_Number_Of_Kills()
+        public void TimesKilled_Get_NumberOfKills()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 5; i++)
             {
                 _cell.Revive();
                 _cell.Kill();
             }
 
-            Assert.AreEqual(_cell.TimesKilled, 3);
+            Assert.AreEqual(_cell.TimesKilled, 5);
         }
 
         [Test]
-        public void OnRevived_Event_Fire_When_Cell_Revived()
+        public void Revive_StatusNotAlive_FireRevivedEvent()
         {
             var fired = false;
-            _cell.OnRevived += (sender, arg) => fired = true;
+            _cell.Revived += (sender, arg) => fired = true;
             _cell.Revive();
-            Assert.IsTrue(fired);
+            Assert.That(fired, Is.True.After(500));
         }
 
         [Test]
-        public void OnKilled_Event_Fire_When_Cell_Killed()
+        public void Kill_StatusIsNotDead_FireKilledEvent()
         {
             var fired = false;
-            _cell.OnKilled += (sender, arg) => fired = true;
+            _cell.Killed += (sender, arg) => fired = true;
             _cell.Kill();
-            Assert.IsTrue(fired);
+            Assert.That(fired,Is.True.After(500));
+        }
+
+        [Test]
+        public void ToString_NormalCall_ReturnsIdBasedOnRowAndColumn()
+        {
+            var actual   = _cell.ToString();
+            var expected = string.Format("[{0},{1}]", _cell.Row, _cell.Column);
+            StringAssert.AreEqualIgnoringCase(actual,expected);
         }
     }
 }
