@@ -49,30 +49,6 @@ namespace GameOfLifeTests
             Assert.AreEqual(cell.Column, expectedColumn);
         }
 
-        [Test]
-        public void When_First_Created_Not_Raising_OnCycle_Event()
-        {
-            var actual = false;
-            var waitFor = _cycleInterval + 1000;
-
-           _universe.OnCycle += (sender, args) => actual = true;
-
-            Assert.That(actual, Is.False.After(waitFor));
-        }
-
-        [Test]
-        public void When_Start_Called_Begin_Raising_OnCycle_Event()
-        {
-            var actual = false;
-            var waitFor = _cycleInterval + 1000;
-
-            _universe.OnCycle += (sender, args) => actual = true;
-
-            _universe.Start();
-
-            Assert.That(actual, Is.True.After(waitFor));
-        }
-
-       
+        
     }
 }
