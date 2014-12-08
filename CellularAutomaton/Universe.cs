@@ -1,9 +1,8 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameOfLife
+namespace CellularAutomaton
 {
     public class Universe
     {
@@ -74,7 +73,7 @@ namespace GameOfLife
             get
             {
                 if (row >= RowsCount || column >= ColumnsCount)
-                    throw new IndexOutOfRangeException();
+                    throw new IndexOutOfRangeException("Row or Column out of range of this universe's matrix.");
                 
                 return _cells.First(c => c.Row == row && c.Column == column);
             }

@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
+using CellularAutomaton;
 using Moq;
 using NUnit.Framework;
-using GameOfLife;
 
-namespace GameOfLifeTests
+namespace CellularAutomatonTests
 {
     [TestFixture]
     public class UniverseTests
@@ -45,8 +44,8 @@ namespace GameOfLifeTests
         [Test]
         public void Indexer_UseValidIndices_CellWithSpecifiedRowAndColumn()
         {
-            var expectedRow = 3;
-            var expectedColumn = 5;
+            const int expectedRow = 3;
+            const int expectedColumn = 5;
             var cell = _universe[expectedRow, expectedColumn];
             Assert.AreEqual(cell.Row, expectedRow);
             Assert.AreEqual(cell.Column, expectedColumn);
@@ -55,13 +54,11 @@ namespace GameOfLifeTests
         [Test]
         public void Indexer_UseInvalidIndices_ThrowOutOfBoundriesException()
         {
-            var outOfRangeRow    = _rowsCount + 5;
-            var outOfRangeColumn = _columnsCount + 5;
-            
-            Assert.Throws<IndexOutOfRangeException>(() =>
-            {
-                var c = _universe[outOfRangeRow, outOfRangeColumn];
-            });
+            // using the count of rows and columns as indices should be out of range.
+            Assert.Throws<IndexOutOfRangeException>(() => _universe[_rowsCount, _columnsCount].Revive());
+
+            // using something greater thatn the cound of rows and columns as indices should be out of range.
+            Assert.Throws<IndexOutOfRangeException>(() => _universe[_rowsCount + 1, _columnsCount + 1].Revive());
         }
 
         [Test]

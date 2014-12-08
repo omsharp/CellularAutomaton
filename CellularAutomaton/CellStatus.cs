@@ -1,5 +1,5 @@
 ﻿
-namespace GameOfLife
+namespace CellularAutomaton
 {
     public enum CellStatus
     {

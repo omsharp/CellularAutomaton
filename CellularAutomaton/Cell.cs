@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GameOfLife
+namespace CellularAutomaton
 {
     public class Cell
     {

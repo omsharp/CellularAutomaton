@@ -1,8 +1,7 @@
-﻿using System;
+﻿using CellularAutomaton;
 using NUnit.Framework;
-using GameOfLife;
 
-namespace GameOfLifeTests
+namespace CellularAutomatonTests
 {
     [TestFixture]
     public class CellTests
