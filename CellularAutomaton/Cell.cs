@@ -69,7 +69,7 @@ namespace CellularAutomaton
             if (Revived != null)
                 Revived(this, new EventArgs());
         }
-
+         
         /// <summary>
         /// Kills this cell and sets its generation to 0.
         /// </summary>

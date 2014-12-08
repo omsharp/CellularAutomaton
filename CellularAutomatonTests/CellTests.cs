@@ -17,7 +17,7 @@ namespace CellularAutomatonTests
             _column = 4;
             _cell   = new Cell(_row, _column);
         }
-
+        
         [Test]
         public void Cell_FirstCreated_GenerationIsZero()
         {
@@ -64,7 +64,7 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void MoveToNextGeneration_NormalCall_GenerationIncreasedByOne()
+        public void MoveToNextGeneration_StatusIsAlive_GenerationIncreasedByOne()
         {
             var beforeGeneration = _cell.Generation;
             _cell.Revive();  // Generation = 1
@@ -73,17 +73,24 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void MoveToNextGeneration_NormalCall_ReturnsGenerationAfterIncreaseing()
+        public void MoveToNextGeneration_StatusIsAlive_ReturnsGenerationAfterIncreaseing()
         {
-            _cell.Revive(); // 1
-            _cell.MoveToNextGeneration(); // 2
+            _cell.Revive(); //  Status = Alive  .. Generation = 1
+            _cell.MoveToNextGeneration(); //  Status = Alive  ..  Generation = 2
             Assert.AreEqual(_cell.MoveToNextGeneration(), 3);
+        }
+
+        [Test]
+        public void MoveToNextGeneration_StatusIsInactive_ThrowsException()
+        {
+            // at this point Status = Incactive (newly created cell)
+            Assert.Throws<MovingToNextGenerationFailedException>(() => _cell.MoveToNextGeneration());
         }
 
         [Test]
         public void MoveToNextGeneration_StatusIsDead_ThrowException()
         {
-            _cell.Kill();
+            _cell.Kill(); // Status = Dead
             Assert.Throws<MovingToNextGenerationFailedException>(() => _cell.MoveToNextGeneration());
         }
 

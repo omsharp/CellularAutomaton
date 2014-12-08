@@ -15,7 +15,7 @@ namespace CellularAutomatonTests
 
         [SetUp]
         public void Setup()
-        {
+        { 
             _rowsCount = 10;
             _columnsCount = 15;
             _universe = new Universe(_rowsCount, _columnsCount);
