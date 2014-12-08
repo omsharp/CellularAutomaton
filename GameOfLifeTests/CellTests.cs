@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using GameOfLife;
 
 namespace GameOfLifeTests
@@ -67,8 +68,9 @@ namespace GameOfLifeTests
         public void MoveToNextGeneration_NormalCall_GenerationIncreasedByOne()
         {
             var beforeGeneration = _cell.Generation;
-            _cell.MoveToNextGeneration();
-            Assert.AreEqual(_cell.Generation, beforeGeneration + 1);
+            _cell.Revive();  // Generation = 1
+            _cell.MoveToNextGeneration();  // Generation = 2
+            Assert.AreEqual(_cell.Generation, beforeGeneration + 2);
         }
 
         [Test]
@@ -77,6 +79,13 @@ namespace GameOfLifeTests
             _cell.Revive(); // 1
             _cell.MoveToNextGeneration(); // 2
             Assert.AreEqual(_cell.MoveToNextGeneration(), 3);
+        }
+
+        [Test]
+        public void MoveToNextGeneration_StatusIsDead_ThrowException()
+        {
+            _cell.Kill();
+            Assert.Throws<MovingToNextGenerationFailedException>(() => _cell.MoveToNextGeneration());
         }
 
         [Test]
@@ -138,4 +147,5 @@ namespace GameOfLifeTests
             StringAssert.AreEqualIgnoringCase(actual,expected);
         }
     }
+
 }

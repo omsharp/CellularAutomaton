@@ -3,3 +3,8 @@ F:\Work-Space\VS\GameOfLife\GameOfLife\bin\Debug\GameOfLife.pdb
 F:\Work-Space\VS\GameOfLife\GameOfLife\obj\Debug\GameOfLife.dll
 F:\Work-Space\VS\GameOfLife\GameOfLife\obj\Debug\GameOfLife.pdb
 F:\Work-Space\VS\GameOfLife\GameOfLife\obj\Debug\GameOfLife.csprojResolveAssemblyReference.cache
+C:\CellAutomaton\GameOfLife\bin\Debug\GameOfLife.dll
+C:\CellAutomaton\GameOfLife\bin\Debug\GameOfLife.pdb
+C:\CellAutomaton\GameOfLife\obj\Debug\GameOfLife.csprojResolveAssemblyReference.cache
+C:\CellAutomaton\GameOfLife\obj\Debug\GameOfLife.dll
+C:\CellAutomaton\GameOfLife\obj\Debug\GameOfLife.pdb

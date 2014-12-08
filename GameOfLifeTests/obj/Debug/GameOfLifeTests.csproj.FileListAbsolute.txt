@@ -9,3 +9,14 @@ F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.dll
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\GameOfLife.pdb
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\Moq.dll
 F:\Work-Space\VS\GameOfLife\GameOfLifeTests\bin\Debug\Moq.xml
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\GameOfLifeTests.dll
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\GameOfLifeTests.pdb
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\GameOfLife.dll
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\Moq.dll
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\nunit.framework.dll
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\GameOfLife.pdb
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\Moq.xml
+C:\CellAutomaton\GameOfLifeTests\bin\Debug\nunit.framework.xml
+C:\CellAutomaton\GameOfLifeTests\obj\Debug\GameOfLifeTests.csprojResolveAssemblyReference.cache
+C:\CellAutomaton\GameOfLifeTests\obj\Debug\GameOfLifeTests.dll
+C:\CellAutomaton\GameOfLifeTests\obj\Debug\GameOfLifeTests.pdb

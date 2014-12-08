@@ -17,7 +17,7 @@ namespace GameOfLife
         /// <summary>
         /// Gets the count of times this cell is killed.
         /// </summary>
-        public int TimesKilled  { get; private set; }
+        public int TimesKilled { get; private set; }
 
         /// <summary>
         /// Gets the count of times this cell is revived.
@@ -48,10 +48,10 @@ namespace GameOfLife
         /// <param name="column">The column in which this cell should be located</param>
         public Cell(int row, int column)
         {
-            Row        = row;
-            Column     = column;
+            Row = row;
+            Column = column;
             Generation = 0;
-            Status     = CellStatus.Inactive;
+            Status = CellStatus.Inactive;
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace GameOfLife
         {
             if (Status == CellStatus.Alive) return;
 
-            Status     = CellStatus.Alive;
+            Status = CellStatus.Alive;
             Generation = 1;
 
             TimesRevived++;
@@ -77,7 +77,7 @@ namespace GameOfLife
         {
             if (Status == CellStatus.Dead) return;
 
-            Status     = CellStatus.Dead;
+            Status = CellStatus.Dead;
             Generation = 0;
 
             TimesKilled++;
@@ -88,9 +88,18 @@ namespace GameOfLife
 
         /// <summary>
         /// Moves this cell to the next generation.
+        /// Throws MovingToNextGenerationFailedException.
         /// </summary>
         public int MoveToNextGeneration()
         {
+            const string msg = "You can't move a cell to next generation unless it's Alive.";
+
+            if (Status == CellStatus.Inactive)
+                throw new MovingToNextGenerationFailedException("Cell is Inactive. " + msg);
+
+            if (Status == CellStatus.Dead)
+                throw new MovingToNextGenerationFailedException("Cell is Dead. " + msg);
+
             return ++Generation;
         }
 
