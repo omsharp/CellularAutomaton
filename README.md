@@ -1,5 +1,5 @@
-CellularAutomaton
-=================
+Cellular Automaton
+==================
 
 This is an implementation of a composable Cellular Automaton system.
 
