@@ -27,7 +27,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Gets the row in which this cell is located.
         /// </summary>
-        public int Row { get; private set; }
+        public int Row { get; private set; } //TODO: consider using a Location class to encabsulate Row and Column.
 
         /// <summary>
         /// Gets the column in which this cell is located.
@@ -44,14 +44,30 @@ namespace CellularAutomaton
         /// </summary>
         public CellStatus Status { get; private set; }
 
-        /// <param name="row">The row in which this cell should be located</param>
-        /// <param name="column">The column in which this cell should be located</param>
-        public Cell(int row, int column)
+        private Cell(int row, int column)
         {
             Row = row;
             Column = column;
             Generation = 0;
             Status = CellStatus.Inactive;
+        }
+
+        /// <summary>
+        /// Returns a new Cell object.
+        /// Throws ArgumentException if row or column is negative.
+        /// </summary>
+        /// <param name="row">The row in which the cell should be located</param>
+        /// <param name="column">The column in which the cell should be located</param>
+        /// <returns></returns>
+        public static Cell MakeCell(int row, int column)
+        {
+            if (row < 0)
+                throw new ArgumentException("You can't use negatives for row value.");
+
+            if (column < 0)
+                throw new ArgumentException("You can't use negatives for column value.");
+
+            return new Cell(row,column);
         }
 
         /// <summary>
@@ -95,10 +111,10 @@ namespace CellularAutomaton
             const string msg = "You can't move a cell to next generation unless it's Alive.";
 
             if (Status == CellStatus.Inactive)
-                throw new MovingToNextGenerationFailedException("Cell is Inactive. " + msg);
+                throw new InvalidOperationException("Cell is Inactive. " + msg);
 
             if (Status == CellStatus.Dead)
-                throw new MovingToNextGenerationFailedException("Cell is Dead. " + msg);
+                throw new InvalidOperationException("Cell is Dead. " + msg);
 
             return ++Generation;
         }

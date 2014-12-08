@@ -1,4 +1,5 @@
-﻿using CellularAutomaton;
+﻿using System;
+using CellularAutomaton;
 using NUnit.Framework;
 
 namespace CellularAutomatonTests
@@ -15,9 +16,15 @@ namespace CellularAutomatonTests
         {
             _row    = 2;
             _column = 4;
-            _cell   = new Cell(_row, _column);
+            _cell   = Cell.MakeCell(_row, _column);
         }
-        
+
+        [Test]
+        public void MakeCell_NegativeArguments_ThrowsException()
+        {
+            Assert.Throws<ArgumentException>(() => Cell.MakeCell(-1, -2));
+        }
+
         [Test]
         public void Cell_FirstCreated_GenerationIsZero()
         {
@@ -84,14 +91,14 @@ namespace CellularAutomatonTests
         public void MoveToNextGeneration_StatusIsInactive_ThrowsException()
         {
             // at this point Status = Incactive (newly created cell)
-            Assert.Throws<MovingToNextGenerationFailedException>(() => _cell.MoveToNextGeneration());
+            Assert.Throws<InvalidOperationException>(() => _cell.MoveToNextGeneration());
         }
 
         [Test]
-        public void MoveToNextGeneration_StatusIsDead_ThrowException()
+        public void MoveToNextGeneration_StatusIsDead_ThrowsException()
         {
             _cell.Kill(); // Status = Dead
-            Assert.Throws<MovingToNextGenerationFailedException>(() => _cell.MoveToNextGeneration());
+            Assert.Throws<InvalidOperationException>(() => _cell.MoveToNextGeneration());
         }
 
         [Test]
@@ -106,25 +113,29 @@ namespace CellularAutomatonTests
         [Test]
         public void TimesRevived_Get_NumberOfRevives()
         {
-            for (var i = 0; i < 5; i++)
+            var expected = 5;
+
+            for (var i = 0; i < expected; i++)
             {
                 _cell.Revive();
                 _cell.Kill();
             }
 
-            Assert.AreEqual(_cell.TimesRevived, 5);
+            Assert.AreEqual(_cell.TimesRevived, expected);
         }
 
         [Test]
         public void TimesKilled_Get_NumberOfKills()
         {
-            for (var i = 0; i < 5; i++)
+            var expected = 5;
+
+            for (var i = 0; i < expected; i++)
             {
                 _cell.Revive();
                 _cell.Kill();
             }
 
-            Assert.AreEqual(_cell.TimesKilled, 5);
+            Assert.AreEqual(_cell.TimesKilled, expected);
         }
 
         [Test]
@@ -148,9 +159,9 @@ namespace CellularAutomatonTests
         [Test]
         public void ToString_NormalCall_ReturnsIdBasedOnRowAndColumn()
         {
-            var actual   = _cell.ToString();
-            var expected = string.Format("[{0},{1}]", _cell.Row, _cell.Column);
-            StringAssert.AreEqualIgnoringCase(actual,expected);
+            var actual = _cell.ToString();
+            Assert.IsFalse(string.IsNullOrEmpty(actual));
+ 
         }
     }
 

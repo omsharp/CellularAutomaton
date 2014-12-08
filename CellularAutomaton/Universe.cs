@@ -7,9 +7,9 @@ namespace CellularAutomaton
     public class Universe
     {
         private List<Cell> _cells;
-
+        
         /// <summary>
-        /// Fires after the NextCycle method finishes.
+        /// Fired after the NextCycle method finishes.
         /// </summary>
         public EventHandler CycleFinished;
 
@@ -41,12 +41,11 @@ namespace CellularAutomaton
             get { return _cells; }
         }
 
-
-        public Universe(int rows, int columns)
+        private Universe(int rowsCount, int columnsCount)
         {
             Age           = 0;
-            RowsCount     = rows;
-            ColumnsCount  = columns;
+            RowsCount     = rowsCount;
+            ColumnsCount  = columnsCount;
             Rules         = new List<IRule>();
 
             InitializeCells();
@@ -60,9 +59,37 @@ namespace CellularAutomaton
             {
                 for (var col = 0; col < ColumnsCount; col++)
                 {
-                    _cells.Add(new Cell(row, col));
+                    _cells.Add(Cell.MakeCell(row, col));
                 }
             }
+        }
+
+        private void ApplyRules()
+        {
+            foreach (var cell in _cells)
+            {
+                foreach (var rule in Rules)
+                {
+                    rule.Apply(cell);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a new Universe object.
+        /// Throws ArgumentException if rowsCount or columnsCount is negative.
+        /// </summary>
+        /// <param name="rowsCount">The count of rows in the whole universe.</param>
+        /// <param name="columnsCount">The count of columns in the whole universe.</param>
+        public static Universe MakeUniverse(int rowsCount, int columnsCount)
+        {
+            if (rowsCount < 1)
+                throw new ArgumentException("You can't use negatives for rows count.");
+
+            if (columnsCount < 1)
+                throw new ArgumentException("You can't use negatives for columns count.");
+
+            return new Universe(rowsCount, columnsCount);
         }
 
         /// <summary>
@@ -72,8 +99,11 @@ namespace CellularAutomaton
         {
             get
             {
+                if (row < 0 || column < 0)
+                    throw new IndexOutOfRangeException("Can't use negative values for index.");   
+
                 if (row >= RowsCount || column >= ColumnsCount)
-                    throw new IndexOutOfRangeException("Row or Column out of range of this universe's matrix.");
+                    throw new IndexOutOfRangeException("Row or Column is out of range of this universe's matrix.");
                 
                 return _cells.First(c => c.Row == row && c.Column == column);
             }
@@ -93,20 +123,28 @@ namespace CellularAutomaton
                 CycleFinished(this,new EventArgs());
         }
 
-        private void ApplyRules()
+        public IEnumerable<Cell> GetNeighborhood(int targetCellRow, int targetCellcolumn)
         {
-            foreach (var cell in _cells)
-            {
-                foreach (var rule in Rules)
-                {
-                    rule.Apply(cell);
-                }
-            }
-        }
-    }
+            if (targetCellRow < 0)
+                throw new ArgumentOutOfRangeException("targetCellRow", "You can't use negative values.");
 
-    public interface IRule
-    {
-        void Apply(Cell cell);
+            if (targetCellcolumn < 0)
+                throw new ArgumentOutOfRangeException("targetCellcolumn", "You can't use negative values.");
+
+            if (targetCellRow >= RowsCount)
+                throw new ArgumentOutOfRangeException("targetCellRow", "Argument is outside of the boundaries of the universe.");
+
+            if (targetCellcolumn >= ColumnsCount)
+                throw new ArgumentOutOfRangeException("targetCellcolumn", "Argument is outside of the boundaries of the universe.");    
+
+
+            var list = new List<Cell>();
+            return list;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Universe with {0} rows and {1} columns.", RowsCount, ColumnsCount);
+        }
     }
 }
