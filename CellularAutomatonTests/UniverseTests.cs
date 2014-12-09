@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Xml.Schema;
 using CellularAutomaton;
 using Moq;
@@ -10,20 +12,22 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class UniverseTests
     {
+        private int _universeRowsCount;
+        private int _universeColumnsCount;
+        private int _specificRow;
+        private int _specificColumn;
+        
         private Universe _universe;
-        private int      _rowsCount;
-        private int      _columnsCount;
-        private int      _rowIndex;
-        private int      _columnIndex;
 
         [SetUp]
-        public void      Setup()
+        public void Setup()
         { 
-            _rowsCount    = 10;
-            _columnsCount = 15;
-            _rowIndex     = 5;
-            _columnIndex  = 9;
-            _universe     = Universe.MakeUniverse(_rowsCount, _columnsCount);
+            _universeRowsCount    = 10;
+            _universeColumnsCount = 15;
+            _specificRow          = 5;
+            _specificColumn       = 9;
+            _universe             = Universe.MakeUniverse(_universeRowsCount, 
+                                                          _universeColumnsCount);
         }
 
         [Test]
@@ -70,8 +74,8 @@ namespace CellularAutomatonTests
         [Test]
         public void Indexer_UseValidIndices_ReturnsCellWithSpecifiedRowAndColumn()
         {
-            var cell      = _universe[_rowIndex, _columnIndex];
-            var excpected = (cell.Row == _rowIndex) && (cell.Column == _columnIndex);
+            var cell      = _universe[_specificRow, _specificColumn];
+            var excpected = (cell.Row == _specificRow) && (cell.Column == _specificColumn);
 
             Assert.IsTrue(excpected);
         }
@@ -80,7 +84,8 @@ namespace CellularAutomatonTests
         public void Indexer_UseInvalidIndices_ThrowsOutOfBoundriesException()
         {
             // using the count of rows and columns as indices should be out of range.
-            Assert.Throws<IndexOutOfRangeException>(() => _universe[_rowsCount, _columnsCount].Revive());
+            Assert.Throws<IndexOutOfRangeException>(() => _universe[_universeRowsCount, 
+                                                                    _universeColumnsCount].Revive());
             // using negative numbers
             Assert.Throws<IndexOutOfRangeException>(() => _universe[-1, -1].Revive());
         }
@@ -91,7 +96,7 @@ namespace CellularAutomatonTests
             var fired = false;
             _universe.CycleFinished += (sender,e) => fired = true;
             _universe.NextCycle();
-            Assert.That(fired, Is.True.After(500));
+            Assert.That(fired, Is.True.After(200));
         }
 
         [Test]
@@ -147,25 +152,59 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighborhood_NegativeArguments_ThrowsException()
+        public void GetNeighboringCells_NegativeArguments_ThrowsException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighborhood(-1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighborhood( 1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighborhood(-1,  1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(-1, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells( 1, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(-1,  1));
         }
 
         [Test]
-        public void GetNeghborhood_ArgumentOutOfBoundaries_ThrowException()
+        public void GetNeighboringCells_ArgumentOutOfBoundaries_ThrowException()
         {
             //rows and columns counts are out of boundaries, since the universe is zero based.
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighborhood(_rowsCount,
-                                                                                       _columnsCount));
+            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(_universeRowsCount,
+                                                                                           _universeColumnsCount));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighborhood(_rowsCount + 1,
-                                                                                       _columnsCount + 1));
-        
+            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(_universeRowsCount + 1,
+                                                                                           _universeColumnsCount + 1));
         }
 
+        [Test]
+        public void GetNeighboringCells_UniverseIsOnlyOneCell_ReturnsEmptyCollection()
+        {
+            var oneCellUniverse = Universe.MakeUniverse(1, 1);
+            var actualCollection = oneCellUniverse.GetNeighboringCells(0, 0);
+            CollectionAssert.IsEmpty(actualCollection);
+        }
+
+        [Test]
+        public void GetNeighboringCells_TargetCellSurrounded_ReturnNeighbors()
+        {
+            var targetRow = 3;
+            var targetCol = 6;
+            
+            var neighbors = _universe.GetNeighboringCells(targetRow,targetCol).ToArray();
+
+            var rowIndices = new[]{ targetRow - 1, targetRow, targetRow + 1 };
+            var colIndices = new[]{ targetCol - 1, targetCol, targetCol + 1 };
+
+            var rowInCount = 0;
+            var colInCount = 0;
+
+            foreach (var neighbor in neighbors)
+            {
+                if (rowIndices.Contains(neighbor.Row))
+                    rowInCount++;
+
+                if (colIndices.Contains(neighbor.Column))
+                    colInCount++;
+            }
+
+            Assert.AreEqual(neighbors.Count(), 8);
+            Assert.AreEqual(rowInCount, 8);
+            Assert.AreEqual(colInCount, 8);
+        }
         
     }
 }

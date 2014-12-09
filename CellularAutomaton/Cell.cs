@@ -2,6 +2,18 @@
 
 namespace CellularAutomaton
 {
+    public struct Location
+    {
+        public int Row    { get; private set; }
+        public int Column { get; private set; }
+
+        public Location(int row, int column) : this()
+        {
+            Row    = row;
+            Column = column;
+        }
+    }
+
     public class Cell
     {
         /// <summary>
@@ -27,7 +39,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Gets the row in which this cell is located.
         /// </summary>
-        public int Row { get; private set; } //TODO: consider using a Location class to encabsulate Row and Column.
+        public int Row { get; private set; }
 
         /// <summary>
         /// Gets the column in which this cell is located.
@@ -46,10 +58,10 @@ namespace CellularAutomaton
 
         private Cell(int row, int column)
         {
-            Row = row;
-            Column = column;
+            Row        = row;
+            Column     = column;
             Generation = 0;
-            Status = CellStatus.Inactive;
+            Status     = CellStatus.Inactive;
         }
 
         /// <summary>
@@ -75,9 +87,10 @@ namespace CellularAutomaton
         /// </summary>
         public void Revive()
         {
-            if (Status == CellStatus.Alive) return;
+            if (Status == CellStatus.Alive) 
+                throw new InvalidOperationException("You can't revive a cell with Alive status.");
 
-            Status = CellStatus.Alive;
+            Status     = CellStatus.Alive;
             Generation = 1;
 
             TimesRevived++;
@@ -91,9 +104,10 @@ namespace CellularAutomaton
         /// </summary>
         public void Kill()
         {
-            if (Status == CellStatus.Dead) return;
+            if (Status == CellStatus.Dead) 
+                throw new InvalidOperationException("You can't kill a cell with Dead status.");
 
-            Status = CellStatus.Dead;
+            Status     = CellStatus.Dead;
             Generation = 0;
 
             TimesKilled++;

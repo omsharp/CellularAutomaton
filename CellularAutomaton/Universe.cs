@@ -34,7 +34,7 @@ namespace CellularAutomaton
         public List<IRule> Rules { get; set; }
         
         /// <summary>
-        /// Gets IEnumerable of all the lists in the universe.
+        /// Gets an IEnumerable of all cell in this universe.
         /// </summary>
         public IEnumerable<Cell> Cells
         {
@@ -83,11 +83,8 @@ namespace CellularAutomaton
         /// <param name="columnsCount">The count of columns in the whole universe.</param>
         public static Universe MakeUniverse(int rowsCount, int columnsCount)
         {
-            if (rowsCount < 1)
-                throw new ArgumentException("You can't use negatives for rows count.");
-
-            if (columnsCount < 1)
-                throw new ArgumentException("You can't use negatives for columns count.");
+            if (rowsCount < 1 || columnsCount < 1)
+                throw new ArgumentException("You can't use less that 1 for rows or columns count.");
 
             return new Universe(rowsCount, columnsCount);
         }
@@ -100,12 +97,15 @@ namespace CellularAutomaton
             get
             {
                 if (row < 0 || column < 0)
-                    throw new IndexOutOfRangeException("Can't use negative values for index.");   
+                    throw new IndexOutOfRangeException("You can't use negative values.");   
 
-                if (row >= RowsCount || column >= ColumnsCount)
-                    throw new IndexOutOfRangeException("Row or Column is out of range of this universe's matrix.");
+                if (row >= RowsCount)
+                    throw new IndexOutOfRangeException("row is outside of the boundaries of the universe");
                 
-                return _cells.First(c => c.Row == row && c.Column == column);
+                if (column >= ColumnsCount)
+                    throw new IndexOutOfRangeException("column is outside of the boundaries of the universe");
+                
+                return _cells.Single(c => c.Row == row && c.Column == column);
             }
         }
 
@@ -123,25 +123,72 @@ namespace CellularAutomaton
                 CycleFinished(this,new EventArgs());
         }
 
-        public IEnumerable<Cell> GetNeighborhood(int targetCellRow, int targetCellcolumn)
+        /// <summary>
+        ///Returns a list of all the neighboring cells the selected target cell. 
+        /// </summary>
+        /// <param name="targetCellRow"></param>
+        /// <param name="targetCellColumn"></param>
+        /// <returns>IEnumerable of Cell</returns>
+        public IEnumerable<Cell> GetNeighboringCells(int targetCellRow, int targetCellColumn)
         {
-            if (targetCellRow < 0)
-                throw new ArgumentOutOfRangeException("targetCellRow", "You can't use negative values.");
+            var msg = "You can't use negative values.";
 
-            if (targetCellcolumn < 0)
-                throw new ArgumentOutOfRangeException("targetCellcolumn", "You can't use negative values.");
+            if (targetCellRow < 0)
+                throw new ArgumentOutOfRangeException("targetCellRow", msg);
+                                                                          
+            if (targetCellColumn < 0)                                     
+                throw new ArgumentOutOfRangeException("targetCellColumn", msg);
+
+            msg = "Argument is outside of the boundaries of the universe.";
 
             if (targetCellRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetCellRow", "Argument is outside of the boundaries of the universe.");
+                throw new ArgumentOutOfRangeException("targetCellRow", msg);
 
-            if (targetCellcolumn >= ColumnsCount)
-                throw new ArgumentOutOfRangeException("targetCellcolumn", "Argument is outside of the boundaries of the universe.");    
-
+            if (targetCellColumn >= ColumnsCount)
+                throw new ArgumentOutOfRangeException("targetCellColumn", msg);
 
             var list = new List<Cell>();
-            return list;
+            
+            if (Cells.Count() < 2) return list;
+
+            var lastRowInUniverse    = RowsCount - 1;
+            var lastColumnInUniverse = ColumnsCount - 1;
+            
+            //TODO:  Refactor this method when all tests are done. UGLY!
+
+            // if the target cell is surrounded
+            if (targetCellRow    > 0 && 
+                targetCellColumn > 0 && 
+                targetCellRow    < lastRowInUniverse && 
+                targetCellColumn < lastColumnInUniverse)
+            {
+                var rowIndices = new[] {targetCellRow - 1, targetCellRow, targetCellRow + 1};
+                var colIndices = new[] {targetCellColumn - 1, targetCellColumn, targetCellColumn + 1};
+
+                for (var rowIndx = 0; rowIndx < 3; rowIndx++)
+                {
+                    for (var colIndx = 0; colIndx < 3; colIndx++)
+                    {
+                        // ignore the target cell
+                        if (rowIndices[rowIndx] == targetCellRow && 
+                            colIndices[colIndx] == targetCellColumn)
+                            continue;
+
+                        var currentRow = rowIndices[rowIndx];
+                        var currentCol = colIndices[colIndx];
+
+                        // use the indexer to retrive cells
+                        list.Add(this[currentRow, currentCol]);
+                    }
+                }
+            }
+
+            return list.AsEnumerable();
         }
 
+        /// <summary>
+        /// Returns a string identifier of this Universe.
+        /// </summary>
         public override string ToString()
         {
             return string.Format("Universe with {0} rows and {1} columns.", RowsCount, ColumnsCount);

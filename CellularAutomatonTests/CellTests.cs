@@ -53,6 +53,13 @@ namespace CellularAutomatonTests
         }
 
         [Test]
+        public void Kill_StatusIsDead_ThrowsException()
+        {
+            _cell.Kill();
+            Assert.Throws<InvalidOperationException>(() => _cell.Kill());
+        }
+
+        [Test]
         public void Revive_StatusNotAlive_GenerationSetToOne()
         {
             _cell.Kill();
@@ -61,13 +68,10 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void Revive_StatusIsAlive_GenerationNotChanged()
+        public void Revive_StatusIsAlive_ThrowsException()
         {
-            _cell.Revive(); // Status = Alive  /  Generation = 1
-            _cell.MoveToNextGeneration(); // Status = Alive / Generation = 2 
-            _cell.Revive(); 
-            // Generation should still be 2. Revive shouldn't change Generaion value while cell is alive.
-            Assert.AreEqual(_cell.Generation, 2);
+            _cell.Revive();
+            Assert.Throws<InvalidOperationException>(() => _cell.Revive());
         }
 
         [Test]
@@ -144,7 +148,7 @@ namespace CellularAutomatonTests
             var fired = false;
             _cell.Revived += (sender, arg) => fired = true;
             _cell.Revive();
-            Assert.That(fired, Is.True.After(500));
+            Assert.That(fired, Is.True.After(200));
         }
 
         [Test]
@@ -153,7 +157,7 @@ namespace CellularAutomatonTests
             var fired = false;
             _cell.Killed += (sender, arg) => fired = true;
             _cell.Kill();
-            Assert.That(fired,Is.True.After(500));
+            Assert.That(fired,Is.True.After(200));
         }
 
         [Test]
