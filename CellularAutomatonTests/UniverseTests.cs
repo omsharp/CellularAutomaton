@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Xml.Schema;
 using CellularAutomaton;
 using Moq;
 using NUnit.Framework;
@@ -12,22 +9,17 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class UniverseTests
     {
-        private int _universeRowsCount;
-        private int _universeColumnsCount;
-        private int _specificRow;
-        private int _specificColumn;
-        
+        private const int ROWS_COUNT      = 10;
+        private const int COLUMNS_COUNT   = 15;
+        private const int SPECIFIC_ROW    = 5;
+        private const int SPECIFIC_COLUMN = 9;
+
         private Universe _universe;
 
         [SetUp]
         public void Setup()
         { 
-            _universeRowsCount    = 10;
-            _universeColumnsCount = 15;
-            _specificRow          = 5;
-            _specificColumn       = 9;
-            _universe             = Universe.MakeUniverse(_universeRowsCount, 
-                                                          _universeColumnsCount);
+            _universe = Universe.MakeUniverse(ROWS_COUNT, COLUMNS_COUNT);
         }
 
         [Test]
@@ -74,8 +66,8 @@ namespace CellularAutomatonTests
         [Test]
         public void Indexer_UseValidIndices_ReturnsCellWithSpecifiedRowAndColumn()
         {
-            var cell      = _universe[_specificRow, _specificColumn];
-            var excpected = (cell.Row == _specificRow) && (cell.Column == _specificColumn);
+            var cell      = _universe[SPECIFIC_ROW, SPECIFIC_COLUMN];
+            var excpected = (cell.Row == SPECIFIC_ROW) && (cell.Column == SPECIFIC_COLUMN);
 
             Assert.IsTrue(excpected);
         }
@@ -84,8 +76,8 @@ namespace CellularAutomatonTests
         public void Indexer_UseInvalidIndices_ThrowsOutOfBoundriesException()
         {
             // using the count of rows and columns as indices should be out of range.
-            Assert.Throws<IndexOutOfRangeException>(() => _universe[_universeRowsCount, 
-                                                                    _universeColumnsCount].Revive());
+            Assert.Throws<IndexOutOfRangeException>(() => _universe[ROWS_COUNT, 
+                                                                    COLUMNS_COUNT].Revive());
             // using negative numbers
             Assert.Throws<IndexOutOfRangeException>(() => _universe[-1, -1].Revive());
         }
@@ -151,60 +143,6 @@ namespace CellularAutomatonTests
             Assert.IsFalse(string.IsNullOrEmpty(actual));
         }
 
-        [Test]
-        public void GetNeighboringCells_NegativeArguments_ThrowsException()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(-1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells( 1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(-1,  1));
-        }
-
-        [Test]
-        public void GetNeighboringCells_ArgumentOutOfBoundaries_ThrowException()
-        {
-            //rows and columns counts are out of boundaries, since the universe is zero based.
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(_universeRowsCount,
-                                                                                           _universeColumnsCount));
-
-            Assert.Throws<ArgumentOutOfRangeException>(() => _universe.GetNeighboringCells(_universeRowsCount + 1,
-                                                                                           _universeColumnsCount + 1));
-        }
-
-        [Test]
-        public void GetNeighboringCells_UniverseIsOnlyOneCell_ReturnsEmptyCollection()
-        {
-            var oneCellUniverse = Universe.MakeUniverse(1, 1);
-            var actualCollection = oneCellUniverse.GetNeighboringCells(0, 0);
-            CollectionAssert.IsEmpty(actualCollection);
-        }
-
-        [Test]
-        public void GetNeighboringCells_TargetCellSurrounded_ReturnNeighbors()
-        {
-            var targetRow = 3;
-            var targetCol = 6;
-            
-            var neighbors = _universe.GetNeighboringCells(targetRow,targetCol).ToArray();
-
-            var rowIndices = new[]{ targetRow - 1, targetRow, targetRow + 1 };
-            var colIndices = new[]{ targetCol - 1, targetCol, targetCol + 1 };
-
-            var rowInCount = 0;
-            var colInCount = 0;
-
-            foreach (var neighbor in neighbors)
-            {
-                if (rowIndices.Contains(neighbor.Row))
-                    rowInCount++;
-
-                if (colIndices.Contains(neighbor.Column))
-                    colInCount++;
-            }
-
-            Assert.AreEqual(neighbors.Count(), 8);
-            Assert.AreEqual(rowInCount, 8);
-            Assert.AreEqual(colInCount, 8);
-        }
         
     }
 }

@@ -125,62 +125,67 @@ namespace CellularAutomaton
 
         /// <summary>
         ///Returns a list of all the neighboring cells the selected target cell. 
+        /// Throws ArgumentOutOfRangeException if one of the arguments is out of range of this universe.
         /// </summary>
-        /// <param name="targetCellRow"></param>
-        /// <param name="targetCellColumn"></param>
+        /// <param name="targetRow">The row of the target cell.</param>
+        /// <param name="targetColumn">The column of the target cell.</param>
         /// <returns>IEnumerable of Cell</returns>
-        public IEnumerable<Cell> GetNeighboringCells(int targetCellRow, int targetCellColumn)
+        public IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn)
         {
-            var msg = "You can't use negative values.";
-
-            if (targetCellRow < 0)
-                throw new ArgumentOutOfRangeException("targetCellRow", msg);
+            if (targetRow < 0)
+                throw new ArgumentOutOfRangeException("targetRow", "You can't use negative values.");
                                                                           
-            if (targetCellColumn < 0)                                     
-                throw new ArgumentOutOfRangeException("targetCellColumn", msg);
+            if (targetColumn < 0)                                     
+                throw new ArgumentOutOfRangeException("targetColumn", "You can't use negative values.");
 
-            msg = "Argument is outside of the boundaries of the universe.";
-
-            if (targetCellRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetCellRow", msg);
-
-            if (targetCellColumn >= ColumnsCount)
-                throw new ArgumentOutOfRangeException("targetCellColumn", msg);
-
+            if (targetRow >= RowsCount)
+                throw new ArgumentOutOfRangeException("targetRow", "Argument is outside of the boundaries of the universe.");
+                                                                         
+            if (targetColumn >= ColumnsCount)                        
+                throw new ArgumentOutOfRangeException("targetColumn","Argument is outside of the boundaries of the universe.");
+            
+            // TODO: Still looks ugly! REFACTOR IT. Consider having a Location struct!
+            
             var list = new List<Cell>();
             
-            if (Cells.Count() < 2) return list;
+            var rowBefore = targetRow - 1;
+            var rowAfter  = targetRow + 1;
 
-            var lastRowInUniverse    = RowsCount - 1;
-            var lastColumnInUniverse = ColumnsCount - 1;
-            
-            //TODO:  Refactor this method when all tests are done. UGLY!
+            var columnBefore = targetColumn - 1;
+            var columnAfter  = targetColumn + 1;
 
-            // if the target cell is surrounded
-            if (targetCellRow    > 0 && 
-                targetCellColumn > 0 && 
-                targetCellRow    < lastRowInUniverse && 
-                targetCellColumn < lastColumnInUniverse)
+            var targetRowIsNotTheFirst    = rowBefore >= 0;
+            var targetColumnIsNotTheFirst = columnBefore >= 0;
+
+            var targetRowIsNotTheLast    = rowAfter <= RowsCount - 1;
+            var targetColumnIsNotTheLast = columnAfter <= ColumnsCount - 1;
+
+            if (targetRowIsNotTheFirst)
             {
-                var rowIndices = new[] {targetCellRow - 1, targetCellRow, targetCellRow + 1};
-                var colIndices = new[] {targetCellColumn - 1, targetCellColumn, targetCellColumn + 1};
+                if (targetColumnIsNotTheFirst)
+                    list.Add(this[rowBefore, columnBefore]);
 
-                for (var rowIndx = 0; rowIndx < 3; rowIndx++)
-                {
-                    for (var colIndx = 0; colIndx < 3; colIndx++)
-                    {
-                        // ignore the target cell
-                        if (rowIndices[rowIndx] == targetCellRow && 
-                            colIndices[colIndx] == targetCellColumn)
-                            continue;
+                list.Add(this[rowBefore, targetColumn]);
 
-                        var currentRow = rowIndices[rowIndx];
-                        var currentCol = colIndices[colIndx];
+                if (targetColumnIsNotTheLast)
+                    list.Add(this[rowBefore, columnAfter]);
+            }
 
-                        // use the indexer to retrive cells
-                        list.Add(this[currentRow, currentCol]);
-                    }
-                }
+            if (targetColumnIsNotTheLast)
+                list.Add(this[targetRow, columnAfter]);
+
+            if (targetColumnIsNotTheFirst)
+                list.Add(this[targetRow, columnBefore]);
+
+            if (targetRowIsNotTheLast)
+            {
+                if (targetColumnIsNotTheLast)
+                    list.Add(this[rowAfter, columnAfter]);
+
+                list.Add(this[rowAfter, targetColumn]);
+
+                if (targetColumnIsNotTheFirst)
+                    list.Add(this[rowAfter, columnBefore]);
             }
 
             return list.AsEnumerable();

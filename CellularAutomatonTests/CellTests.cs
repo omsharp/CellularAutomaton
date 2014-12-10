@@ -8,15 +8,14 @@ namespace CellularAutomatonTests
     public class CellTests
     {
         private Cell _cell;
-        private int _row;
-        private int _column;
+
+        private const int ROW    = 2;
+        private const int COLUMN = 4;
 
         [SetUp]
         public void Setup()
         {
-            _row    = 2;
-            _column = 4;
-            _cell   = Cell.MakeCell(_row, _column);
+            _cell = Cell.MakeCell(ROW, COLUMN);
         }
 
         [Test]
