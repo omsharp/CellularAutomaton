@@ -2,6 +2,7 @@
 
 namespace CellularAutomaton
 {
+    [Serializable]
     public class Cell
     {
         /// <summary>
@@ -13,7 +14,7 @@ namespace CellularAutomaton
         /// Fired whenever this cell is killed.
         /// </summary>
         public event EventHandler Killed;
-
+        //TODO: Add a new event: Evolved.... fires after the cell evolves..
         /// <summary>
         /// Gets the count of times this cell is killed.
         /// </summary>
@@ -123,5 +124,6 @@ namespace CellularAutomaton
         {
             return string.Format("[{0},{1}]", Row, Column);
         }
+
     }
 }

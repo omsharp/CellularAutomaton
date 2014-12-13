@@ -14,22 +14,17 @@ namespace CellularAutomatonDemo
 {
     public partial class Form1 : Form
     {
-        private Universe _universe;
+        private CellularGrid _universe;
 
         public Form1()
         {
-            _universe = Universe.MakeUniverse(30, 50);
 
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            gridView.Rows.Clear();
-            gridView.Columns.Clear();
             
-            gridView.ColumnCount = _universe.ColumnsCount;
-            gridView.RowCount = _universe.RowsCount;
 
         }
     }
