@@ -58,8 +58,6 @@ namespace CellularAutomatonTests
 
             var neighbors = universe.GetNeighboringCells(0, 0).ToArray();
 
-            Assert.AreEqual(neighbors.Count(), 1);
-            Assert.AreEqual(neighbors.Single().Row, 0);
             Assert.AreEqual(neighbors.Single().Column, 1);
         }
 
@@ -395,6 +393,49 @@ namespace CellularAutomatonTests
             Assert.AreEqual(neighbors.Count(), 5);
             Assert.AreEqual(rowInCount, 5);
             Assert.AreEqual(colInCount, 5);
+        }
+
+        [Test]
+        public void GetNeighboringCells_CellIsNull_ThrowsException()
+        {
+            Assert.Throws<ArgumentNullException>(() => _universe.GetNeighboringCells(null));
+        }
+
+        [Test]
+        public void GetNeighboringCells_CellNotInTheUniverse_ThrowsException()
+        {
+            var cell = Cell.MakeCell(4,3);
+            Assert.Throws<ArgumentException>(() => _universe.GetNeighboringCells(cell));
+        }
+
+        [Test]
+        public void GetNeighboringCells_CellInTheUniverse_ReturnsNeighbors()
+        {
+            var targetRow = 3;
+            var targetCol = 6;
+
+            var cell = _universe[targetRow, targetCol];
+
+            var neighbors = _universe.GetNeighboringCells(cell).ToArray();
+
+            var rowIndices = new[] { targetRow - 1, targetRow, targetRow + 1 };
+            var colIndices = new[] { targetCol - 1, targetCol, targetCol + 1 };
+
+            var rowInCount = 0;
+            var colInCount = 0;
+
+            foreach (var neighbor in neighbors)
+            {
+                if (rowIndices.Contains(neighbor.Row))
+                    rowInCount++;
+
+                if (colIndices.Contains(neighbor.Column))
+                    colInCount++;
+            }
+
+            Assert.AreEqual(neighbors.Count(), 8);
+            Assert.AreEqual(rowInCount, 8);
+            Assert.AreEqual(colInCount, 8);
         }
 
     }

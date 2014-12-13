@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CellularAutomaton
 {
-    public class Universe
+    public class Universe : ICellularGrid
     {
         private List<Cell> _cells;
         
@@ -47,7 +47,7 @@ namespace CellularAutomaton
             RowsCount     = rowsCount;
             ColumnsCount  = columnsCount;
             Rules         = new List<IRule>();
-
+            
             InitializeCells();
         }
 
@@ -66,12 +66,9 @@ namespace CellularAutomaton
 
         private void ApplyRules()
         {
-            foreach (var cell in _cells)
+            foreach (var rule in Rules)
             {
-                foreach (var rule in Rules)
-                {
-                    rule.Apply(cell);
-                }
+                rule.Transform(this);
             }
         }
 
@@ -96,15 +93,12 @@ namespace CellularAutomaton
         {
             get
             {
-                if (row < 0 || column < 0)
-                    throw new IndexOutOfRangeException("You can't use negative values.");   
+                if (row < 0 || row >= RowsCount)
+                    throw new IndexOutOfRangeException("Row was outside the bounds of the universe.");
 
-                if (row >= RowsCount)
-                    throw new IndexOutOfRangeException("row is outside of the boundaries of the universe");
-                
-                if (column >= ColumnsCount)
-                    throw new IndexOutOfRangeException("column is outside of the boundaries of the universe");
-                
+                if (column < 0 || column >= ColumnsCount)
+                    throw new IndexOutOfRangeException("Column was outside the bounds of the universe.");
+
                 return _cells.Single(c => c.Row == row && c.Column == column);
             }
         }
@@ -124,7 +118,7 @@ namespace CellularAutomaton
         }
 
         /// <summary>
-        ///Returns a list of all the neighboring cells the selected target cell. 
+        /// Returns a list of all the neighboring cells of the selected target cell. 
         /// Throws ArgumentOutOfRangeException if one of the arguments is out of range of this universe.
         /// </summary>
         /// <param name="targetRow">The row of the target cell.</param>
@@ -132,63 +126,58 @@ namespace CellularAutomaton
         /// <returns>IEnumerable of Cell</returns>
         public IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn)
         {
-            if (targetRow < 0)
-                throw new ArgumentOutOfRangeException("targetRow", "You can't use negative values.");
-                                                                          
-            if (targetColumn < 0)                                     
-                throw new ArgumentOutOfRangeException("targetColumn", "You can't use negative values.");
+            if (targetRow < 0 || targetRow >= RowsCount)
+                throw new ArgumentOutOfRangeException("targetRow", 
+                                                      "Target row was outside the bounds of the universe.");
 
-            if (targetRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetRow", "Argument is outside of the boundaries of the universe.");
-                                                                         
-            if (targetColumn >= ColumnsCount)                        
-                throw new ArgumentOutOfRangeException("targetColumn","Argument is outside of the boundaries of the universe.");
-            
-            // TODO: Still looks ugly! REFACTOR IT. Consider having a Location struct!
+            if (targetColumn < 0 || targetColumn >= ColumnsCount)
+                throw new ArgumentOutOfRangeException("targetColumn", 
+                                                      "Target column was outside the bounds of the universe.");
             
             var list = new List<Cell>();
-            
-            var rowBefore = targetRow - 1;
-            var rowAfter  = targetRow + 1;
 
-            var columnBefore = targetColumn - 1;
-            var columnAfter  = targetColumn + 1;
+            var rowBeforeTarget = targetRow - 1;
+            var rowAfterTarget  = targetRow + 1;
 
-            var targetRowIsNotTheFirst    = rowBefore >= 0;
-            var targetColumnIsNotTheFirst = columnBefore >= 0;
+            var columnBeforeTarget = targetColumn - 1;
+            var columnAfterTarget  = targetColumn + 1;
 
-            var targetRowIsNotTheLast    = rowAfter <= RowsCount - 1;
-            var targetColumnIsNotTheLast = columnAfter <= ColumnsCount - 1;
-
-            if (targetRowIsNotTheFirst)
+            for (var row = rowBeforeTarget; row <= rowAfterTarget; row++)
             {
-                if (targetColumnIsNotTheFirst)
-                    list.Add(this[rowBefore, columnBefore]);
+                if (row < 0 || row >= RowsCount)
+                    continue;
 
-                list.Add(this[rowBefore, targetColumn]);
+                for (var column = columnBeforeTarget; column <= columnAfterTarget; column++)
+                {
+                    if (column < 0 || column >= ColumnsCount)
+                        continue;
 
-                if (targetColumnIsNotTheLast)
-                    list.Add(this[rowBefore, columnAfter]);
-            }
+                    if (row == targetRow && column == targetColumn)
+                        continue;
 
-            if (targetColumnIsNotTheLast)
-                list.Add(this[targetRow, columnAfter]);
-
-            if (targetColumnIsNotTheFirst)
-                list.Add(this[targetRow, columnBefore]);
-
-            if (targetRowIsNotTheLast)
-            {
-                if (targetColumnIsNotTheLast)
-                    list.Add(this[rowAfter, columnAfter]);
-
-                list.Add(this[rowAfter, targetColumn]);
-
-                if (targetColumnIsNotTheFirst)
-                    list.Add(this[rowAfter, columnBefore]);
+                    list.Add(this[row, column]);
+                }
             }
 
             return list.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Returns a list of all the neighboring cells of the selected target cell. 
+        /// Throws ArgumentNullException if the target cell is null.
+        /// Throws ArgumentException if the target cell is not 
+        /// </summary>
+        /// <param name="targetCell">The Cell to get the neighbors of.</param>
+        /// <returns>IEnumerable of Cell</returns>
+        public IEnumerable<Cell> GetNeighboringCells(Cell targetCell)
+        {
+            if (targetCell == null)
+                throw new ArgumentNullException("targetCell", "Target cell is null!");
+                
+            if (Cells.Contains(targetCell) == false)
+                throw new ArgumentException("Target cell is not part of this universe!");
+
+            return GetNeighboringCells(targetCell.Row, targetCell.Column);
         }
 
         /// <summary>
@@ -198,5 +187,6 @@ namespace CellularAutomaton
         {
             return string.Format("Universe with {0} rows and {1} columns.", RowsCount, ColumnsCount);
         }
+        
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CellularAutomaton;
 using Moq;
@@ -83,7 +85,7 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void NextCycle_NormalCall_FiresCycleFinishedEvent()
+        public void Evolve_NormalCall_FiresCycleFinishedEvent()
         {
             var fired = false;
             _universe.CycleFinished += (sender,e) => fired = true;
@@ -92,7 +94,7 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void NextCycle_NormalCall_AgeIncreasedByOne()
+        public void Evolve_NormalCall_AgeIncreasedByOne()
         {
             var oldAge = _universe.Age;
             _universe.NextCycle();
@@ -100,20 +102,31 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void NextCycle_RulesListNotEmpty_AllRulesApplied()
+        public void Evolve_RulesListNotEmpty_ApplyRules()
         {
             var reviveAllCells = new Mock<IRule>();
             var moveToNextGen  = new Mock<IRule>();
             var diagonalKill   = new Mock<IRule>();
 
-            reviveAllCells.Setup(r => r.Apply(It.IsAny<Cell>()))
-                          .Callback<Cell>(c => c.Revive());
-            
-            moveToNextGen.Setup(r => r.Apply(It.IsAny<Cell>()))
-                         .Callback<Cell>(c => c.MoveToNextGeneration());
-            
-            diagonalKill.Setup(r => r.Apply(It.IsAny<Cell>()))
-                        .Callback<Cell>(c => { if (c.Row == c.Column) c.Kill(); });
+            reviveAllCells.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
+                          .Callback<ICellularGrid>(u => {
+                                                          foreach (var cell in u.Cells)
+                                                              cell.Revive();    
+                                                      });
+
+            moveToNextGen.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
+                         .Callback<ICellularGrid>(u => {
+                                                         foreach (var cell in u.Cells)
+                                                             cell.Evolve();
+                                                     });
+
+            diagonalKill.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
+                        .Callback<ICellularGrid>(u => {
+                                                        var cells = u.Cells.Where(c => c.Row == c.Column);
+
+                                                        foreach (var cell in cells)
+                                                            cell.Kill();
+                                                    });
 
             _universe.Rules.Add(reviveAllCells.Object);
             _universe.Rules.Add(moveToNextGen.Object);
@@ -142,7 +155,5 @@ namespace CellularAutomatonTests
             var actual = _universe.ToString();
             Assert.IsFalse(string.IsNullOrEmpty(actual));
         }
-
-        
     }
 }

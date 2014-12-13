@@ -2,18 +2,6 @@
 
 namespace CellularAutomaton
 {
-    public struct Location
-    {
-        public int Row    { get; private set; }
-        public int Column { get; private set; }
-
-        public Location(int row, int column) : this()
-        {
-            Row    = row;
-            Column = column;
-        }
-    }
-
     public class Cell
     {
         /// <summary>
@@ -68,22 +56,19 @@ namespace CellularAutomaton
         /// Returns a new Cell object.
         /// Throws ArgumentException if row or column is negative.
         /// </summary>
-        /// <param name="row">The row in which the cell should be located</param>
-        /// <param name="column">The column in which the cell should be located</param>
+        /// <param name="row">The row in which the cell should be located.</param>
+        /// <param name="column">The column in which the cell should be located.</param>
         /// <returns></returns>
         public static Cell MakeCell(int row, int column)
         {
-            if (row < 0)
-                throw new ArgumentException("You can't use negatives for row value.");
-
-            if (column < 0)
-                throw new ArgumentException("You can't use negatives for column value.");
+            if (row < 0 || column < 0)
+                throw new ArgumentException("You can't use negatives for row or column.");
 
             return new Cell(row,column);
         }
 
         /// <summary>
-        /// Revives this cell and sets its generation to 1.
+        /// Revives this cell and sets its Status to Alive and its Generation to 1.
         /// </summary>
         public void Revive()
         {
@@ -100,7 +85,7 @@ namespace CellularAutomaton
         }
          
         /// <summary>
-        /// Kills this cell and sets its generation to 0.
+        /// Kills this cell and sets its Status to Dead and its Generation to 0.
         /// </summary>
         public void Kill()
         {
@@ -118,23 +103,21 @@ namespace CellularAutomaton
 
         /// <summary>
         /// Moves this cell to the next generation.
-        /// Throws MovingToNextGenerationFailedException.
+        /// Throws InvalidOperationException if the cell is Inactive or Dead.
         /// </summary>
-        public int MoveToNextGeneration()
+        public int Evolve()
         {
-            const string msg = "You can't move a cell to next generation unless it's Alive.";
-
             if (Status == CellStatus.Inactive)
-                throw new InvalidOperationException("Cell is Inactive. " + msg);
+                throw new InvalidOperationException("You can't evolve an Inactive cell.");
 
             if (Status == CellStatus.Dead)
-                throw new InvalidOperationException("Cell is Dead. " + msg);
+                throw new InvalidOperationException("You can't evolve a Dead cell.");
 
             return ++Generation;
         }
 
         /// <summary>
-        /// Returns a string identifier of this cell, based on its Row and Column.
+        /// Returns a string identifier of this cell.
         /// </summary>
         public override string ToString()
         {

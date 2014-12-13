@@ -1,8 +1,11 @@
 ﻿
+
+using System.Collections;
+
 namespace CellularAutomaton
 {
     public interface IRule
     {
-        void Apply(Cell cell);
+        void Transform(ICellularGrid cellularGrid);
     }
 }
