@@ -48,33 +48,52 @@ namespace CellularAutomaton
             return new Universe(cellularGrid);
         }
 
+        public void Transform(ICellularContainer grid)
+        {
+            foreach (var cell in grid.Cells.Where(cell => grid.GetNeighboringCells(cell).Count(c => c.Alive) > 3))
+            {
+                cell.Action = (c1) => c1.Revive();
+            }
+        }
+
         private void ApplyRules()
         {
             if (Rules.Count < 1) return;
 
-            //pass a clone of Grid to each rule.
-            var transformations = Rules.Select(rule => rule.Transform(Grid.Clone()));
 
-            foreach (var transformation in transformations)
+            foreach (var rule in Rules)
             {
-                var touchedCells = transformation.Cells
-                                                 .Where(c => c.Alive != Grid[c.Row, c.Column].Alive ||
-                                                             c.Generation != Grid[c.Row, c.Column].Generation);
-
-                foreach (var touchedCell in touchedCells)
-                {
-                    var originalCell = Grid[touchedCell.Row, touchedCell.Column];
-
-                    if (touchedCell.Alive)
-                        originalCell.Revive();
-
-                    if (!touchedCell.Alive)
-                        originalCell.Kill();
-
-                    while (touchedCell.Generation > originalCell.Generation)
-                        originalCell.Evolve();
-                }
+                Transform(Grid);
             }
+
+            foreach (var cell in Grid.Cells)
+            {
+                cell.DoAction();
+            }
+
+            ////pass a clone of Grid to each rule.
+            //var transformations = Rules.Select(rule => rule.Transform(Grid.Clone()));
+
+            //foreach (var transformation in transformations)
+            //{
+            //    var touchedCells = transformation.Cells
+            //                                     .Where(c => c.Alive != Grid[c.Row, c.Column].Alive ||
+            //                                                 c.Generation != Grid[c.Row, c.Column].Generation);
+
+            //    foreach (var touchedCell in touchedCells)
+            //    {
+            //        var originalCell = Grid[touchedCell.Row, touchedCell.Column];
+
+            //        if (touchedCell.Alive)
+            //            originalCell.Revive();
+
+            //        if (!touchedCell.Alive)
+            //            originalCell.Kill();
+
+            //        while (touchedCell.Generation > originalCell.Generation)
+            //            originalCell.Evolve();
+            //    }
+            //}
         }
 
         /// <summary>

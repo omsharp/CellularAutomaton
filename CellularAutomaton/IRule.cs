@@ -1,8 +1,10 @@
 ﻿
+using System;
+
 namespace CellularAutomaton
 {
     public interface IRule
     {
-        ICellularGrid Transform(ICellularGrid cellularGrid);
+        void Transform(ICellularContainer grid);
     }
 }

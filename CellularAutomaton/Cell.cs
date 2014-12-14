@@ -3,7 +3,7 @@
 namespace CellularAutomaton
 {
     [Serializable]
-    public class Cell
+    public class Cell : ICellView
     {
         /// <summary>
         /// Fired after the cell is revived.
@@ -50,6 +50,17 @@ namespace CellularAutomaton
         /// </summary>
         public bool Alive { get; private set; }
 
+
+        public Action<Cell> Action { get; set; }
+
+        public void DoAction()
+        {
+            if (Action == null) return;
+
+            Action(this);
+
+            Action = null;
+        }
 
         private Cell(int row, int column)
         {

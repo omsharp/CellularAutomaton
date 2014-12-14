@@ -120,12 +120,11 @@ namespace CellularAutomatonTests
                 cell.Evolve();
             }
 
+            //reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid1);
 
-            reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid1);
-
-            killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid2);
+            //killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid2);
             
-            evolveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid3);
+            //evolveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid3);
 
             universe.Rules.Add(reviveRule.Object);
             universe.Rules.Add(killRule.Object);

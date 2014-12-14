@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace CellularAutomaton
 {
     [Serializable]
-    public class CellularGrid
+    public class CellularGrid : ICellularGrid
     {
         private List<Cell> _cells;
 
@@ -19,6 +18,14 @@ namespace CellularAutomaton
         /// Gets the total count of columns.
         /// </summary>
         public int ColumnsCount { get; private set; }
+
+        /// <summary>
+        /// Gets an IEnumerable of all cellViews.
+        /// </summary>
+        IEnumerable<ICellView> ICellularContainer.Cells
+        {
+            get { return Cells; }
+        }
 
         /// <summary>
         /// Gets an IEnumerable of all cells.
@@ -73,7 +80,6 @@ namespace CellularAutomaton
                 return _cells.Single(c => c.Row == row && c.Column == column);
             }
         }
-
 
         /// <summary>
         /// Returns a list of all the neighboring cells of the selected target cell. 
@@ -137,6 +143,25 @@ namespace CellularAutomaton
 
             return GetNeighboringCells(targetCell.Row, targetCell.Column);
         }
+
+        IEnumerable<ICellView> ICellularContainer.GetNeighboringCells(int targetRow, int targetColumn)
+        {
+            return GetNeighboringCells(targetRow, targetColumn);
+        }
+
+        /// <summary>
+        /// Returns a list of all the neighboring cellViews of the specific target cellView. 
+        /// Throws ArgumentNullException if the target cell is null.
+        /// Throws ArgumentException if the target cell is not 
+        /// </summary>
+        /// <param name="targetCell">The Cell to get the neighbors of.</param>
+        /// <returns>IEnumerable of ICellView</returns>
+        IEnumerable<ICellView> ICellularContainer.GetNeighboringCells(ICellView targetCell)
+        {
+            var target = targetCell as Cell;
+            return GetNeighboringCells(target);
+        }
+
 
         /// <summary>
         /// Returns a string identifier of this CellularGrid.
