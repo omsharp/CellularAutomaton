@@ -1,4 +1,5 @@
-﻿using CellularAutomaton;
+﻿using System.Linq;
+using CellularAutomaton;
 using NUnit.Framework;
 
 namespace CellularAutomatonTests
@@ -9,6 +10,7 @@ namespace CellularAutomatonTests
         public void Clone_Serializable_ReturnsCloneOfSource()
         {
             var original = Cell.MakeCell(3, 9);
+
             original.Revive();
             original.Evolve();
 
@@ -16,7 +18,7 @@ namespace CellularAutomatonTests
 
             Assert.AreEqual(original.Row, copy.Row);
             Assert.AreEqual(original.Column, copy.Column);
-            Assert.AreEqual(original.Status, copy.Status);
+            Assert.AreEqual(original.Alive, copy.Alive);
             Assert.AreEqual(original.Generation, copy.Generation);
         }
 
@@ -28,8 +30,5 @@ namespace CellularAutomatonTests
 
             Assert.IsFalse(ReferenceEquals(origianl, copy));
         }
-
-        
-
     }
 }

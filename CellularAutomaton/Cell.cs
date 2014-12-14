@@ -46,16 +46,17 @@ namespace CellularAutomaton
         public int Generation { get; private set; }
 
         /// <summary>
-        /// Gets the status of this cell.
+        /// Returns true if the cell is alive.
         /// </summary>
-        public CellStatus Status { get; private set; }
+        public bool Alive { get; private set; }
+
 
         private Cell(int row, int column)
         {
             Row        = row;
             Column     = column;
             Generation = 0;
-            Status     = CellStatus.Inactive;
+            Alive      = false;
         }
 
         /// <summary>
@@ -78,10 +79,10 @@ namespace CellularAutomaton
         /// </summary>
         public void Revive()
         {
-            if (Status == CellStatus.Alive) 
-                throw new InvalidOperationException("You can't revive a cell with Alive status.");
+            if (Alive) 
+                throw new InvalidOperationException("You can't revive an Alive cell.");
 
-            Status     = CellStatus.Alive;
+            Alive      = true;
             Generation = 1;
 
             TimesRevived++;
@@ -95,10 +96,10 @@ namespace CellularAutomaton
         /// </summary>
         public void Kill()
         {
-            if (Status == CellStatus.Dead) 
-                throw new InvalidOperationException("You can't kill a cell with Dead status.");
+            if (!Alive) 
+                throw new InvalidOperationException("You can't kill a Dead cell.");
 
-            Status     = CellStatus.Dead;
+            Alive      = false;
             Generation = 0;
 
             TimesKilled++;
@@ -113,10 +114,7 @@ namespace CellularAutomaton
         /// </summary>
         public void Evolve()
         {
-            if (Status == CellStatus.Inactive)
-                throw new InvalidOperationException("You can't evolve an Inactive cell.");
-
-            if (Status == CellStatus.Dead)
+            if (!Alive)
                 throw new InvalidOperationException("You can't evolve a Dead cell.");
 
             Generation++;

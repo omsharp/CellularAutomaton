@@ -27,7 +27,7 @@ namespace CellularAutomaton
         /// </summary>
         public List<IRule> Rules { get; set; }
 
-        
+
         private Universe(ICellularGrid cellularGrid)
         {
             Age   = 0;
@@ -44,39 +44,34 @@ namespace CellularAutomaton
         {
             if (cellularGrid == null)
                 throw new ArgumentNullException("cellularGrid", "Argument can't be null!");
-            
+
             return new Universe(cellularGrid);
         }
 
         private void ApplyRules()
         {
-            if(Rules.Count < 1) return;
+            if (Rules.Count < 1) return;
 
             //pass a clone of Grid to each rule.
             var transformations = Rules.Select(rule => rule.Transform(Grid.Clone()));
 
             foreach (var transformation in transformations)
             {
-                var touchedCells = transformation.Cells.Where(c => c.Status != Grid[c.Row, c.Column].Status ||
-                                                                   c.Generation != Grid[c.Row, c.Column].Generation);
+                var touchedCells = transformation.Cells
+                                                 .Where(c => c.Alive != Grid[c.Row, c.Column].Alive ||
+                                                             c.Generation != Grid[c.Row, c.Column].Generation);
 
                 foreach (var touchedCell in touchedCells)
                 {
                     var originalCell = Grid[touchedCell.Row, touchedCell.Column];
 
-                    if (touchedCell.Status == CellStatus.Alive)
-                    {
+                    if (touchedCell.Alive)
                         originalCell.Revive();
-                        continue;
-                    }
 
-                    if (touchedCell.Status == CellStatus.Dead)
-                    {
+                    if (!touchedCell.Alive)
                         originalCell.Kill();
-                        continue;
-                    }
 
-                    if (touchedCell.Generation > originalCell.Generation)
+                    while (touchedCell.Generation > originalCell.Generation)
                         originalCell.Evolve();
                 }
             }
@@ -91,7 +86,7 @@ namespace CellularAutomaton
             ApplyRules();
 
             Age++;
-            
+
             if (CycleFinished != null)
                 CycleFinished(this, new EventArgs());
         }
@@ -106,5 +101,5 @@ namespace CellularAutomaton
 
     }
 
-  
+
 }

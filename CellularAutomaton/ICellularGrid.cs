@@ -2,7 +2,6 @@
 
 namespace CellularAutomaton
 {
-   
     public interface ICellularGrid
     {
         int RowsCount     { get; }
@@ -11,7 +10,7 @@ namespace CellularAutomaton
         IEnumerable<Cell> Cells { get; }
 
         IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn);
-        IEnumerable<Cell> GetNeighboringCells(Cell cell);
+        IEnumerable<Cell> GetNeighboringCells(Cell targetCell);
 
         Cell this[int row, int column] { get; }
     }

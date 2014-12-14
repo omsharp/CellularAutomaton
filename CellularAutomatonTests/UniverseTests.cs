@@ -87,64 +87,65 @@ namespace CellularAutomatonTests
         [Test]
         public void NextCycle_RulesNotOverlapping_ApplyRules()
         {
-            var reviveRule  = new Mock<IRule>(MockBehavior.Strict);
-            var killRule    = new Mock<IRule>(MockBehavior.Strict);
-            var evolvedRule = new Mock<IRule>(MockBehavior.Strict);
+            var cellGrid = CellularGrid.MakeCellularGrid(10, 15);
+            var universe = Universe.MakeUniverse(cellGrid);
+
+            var reviveRule = new Mock<IRule>(MockBehavior.Strict);
+            var killRule   = new Mock<IRule>(MockBehavior.Strict);
+            var evolveRule = new Mock<IRule>(MockBehavior.Strict);
+
+            var grid1 = cellGrid.Clone();
+            var grid2 = cellGrid.Clone();
+            var grid3 = cellGrid.Clone();
+
+            foreach (var cell in grid1.Cells.Where(c => c.Row % 3 == 0))
+            {
+                cell.Revive();
+            }
+
+
+            foreach (var cell in grid2.Cells.Where(c => c.Row == 8))
+            {
+                cell.Revive();
+                cell.Evolve();
+            }
+
+
+            foreach (var cell in grid3.Cells.Where(c => c.Column  == 4 && 
+                                                        c.Row % 3 != 0 && 
+                                                        c.Row     != 8))
+            {
+                cell.Revive();
+                cell.Evolve();
+                cell.Evolve();
+            }
+
+
+            reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid1);
+
+            killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid2);
             
-            reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
-                      .Returns<ICellularGrid>(grid =>
-                      {
-                          foreach (var cell in grid.Cells.Where(c => c.Row % 3 == 0))
-                          {
-                              cell.Revive();
-                          }
+            evolveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid3);
 
-                          return grid;
-                      });
+            universe.Rules.Add(reviveRule.Object);
+            universe.Rules.Add(killRule.Object);
+            universe.Rules.Add(evolveRule.Object);
 
-            killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
-                    .Returns<ICellularGrid>(grid =>
-                    {
-                        foreach (var cell in grid.Cells.Where(c => c.Row == 10))
-                        {
-                            cell.Kill();
-                        }
 
-                        return grid;
-                    });
-
-            evolvedRule.Setup(r => r.Transform(It.IsAny<CellularGrid>()))
-                       .Returns<ICellularGrid>(grid =>
-                       {
-                           foreach (var cell in grid.Cells.Where(c => c.Column == 4 && 
-                                                                      c.Row % 3 != 0 && 
-                                                                      c.Row != 10))
-                           {
-                               cell.Revive();
-                               cell.Evolve();
-                           }
-
-                           return grid;
-                       });
-
-            _universe.Rules.Add(reviveRule.Object);
-            _universe.Rules.Add(killRule.Object);
-            _universe.Rules.Add(evolvedRule.Object);
-
-            _universe.NextCycle();
+            universe.NextCycle();
 
             var firstApplied = _universe.Grid.Cells.Where(c => c.Row % 3 == 0)
-                                                   .All(c => c.Status == CellStatus.Alive);
+                                                   .All(c => c.Alive);
 
-            var secondApplied = _universe.Grid.Cells.Where(c => c.Row == 10)
-                                                    .All(c => c.Status == CellStatus.Dead);
+            var secondApplied = _universe.Grid.Cells.Where(c => c.Row == 8)
+                                                    .All(c => c.Alive && c.Generation == 2);
 
-            var thirdApplied = _universe.Grid.Cells.Where(c => c.Row == 7 && c.Column == 3)
-                                                   .All(c => c.Status == CellStatus.Alive && c.Generation == 2);
-
-
-            Assert.IsTrue(secondApplied);
+            var thirdApplied = _universe.Grid.Cells.Where(c => c.Column == 4 &&
+                                                               c.Row % 3 != 0 &&
+                                                               c.Row != 8).All(c => c.Alive && 
+                                                                                    c.Generation == 3);
             Assert.IsTrue(firstApplied);
+            Assert.IsTrue(secondApplied);
             Assert.IsTrue(thirdApplied);
         }
 

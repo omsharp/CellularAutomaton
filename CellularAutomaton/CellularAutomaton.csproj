@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cell.cs" />
-    <Compile Include="CellStatus.cs" />
     <Compile Include="CellularGrid.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ICellularGrid.cs" />

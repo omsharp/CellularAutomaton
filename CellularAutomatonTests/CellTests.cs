@@ -31,40 +31,31 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void Status_CellFirstCreated_StatusIsInactive()
-        {
-            Assert.AreEqual(CellStatus.Inactive, _cell.Status);
-        }
-
-        [Test]
-        public void Revive_StatusNotAlive_ChangeStatusToAlive()
+        public void Revive_StatusNotAlive_ChangeAliveToTrue()
         {
             _cell.Revive();
 
-            Assert.AreEqual(_cell.Status, CellStatus.Alive);
+            Assert.IsTrue(_cell.Alive);
         }
 
         [Test]
-        public void Kill_StatusNotDead_ChangeStatusToDead()
+        public void Kill_StatusNotDead_ChangeAliveFalse()
         {
             _cell.Revive();
             _cell.Kill();
 
-            Assert.AreEqual(_cell.Status, CellStatus.Dead);
+            Assert.IsFalse(_cell.Alive);
         }
 
         [Test]
         public void Kill_StatusIsDead_ThrowsException()
         {
-            _cell.Kill();
-
             Assert.Throws<InvalidOperationException>(() => _cell.Kill());
         }
 
         [Test]
         public void Revive_StatusNotAlive_GenerationSetToOne()
         {
-            _cell.Kill();
             _cell.Revive();
 
             Assert.AreEqual(_cell.Generation, 1);
@@ -92,14 +83,6 @@ namespace CellularAutomatonTests
         public void Evolve_StatusIsInactive_ThrowsException()
         {
             // at this point Status = Incactive (newly created cell)
-            Assert.Throws<InvalidOperationException>(() => _cell.Evolve());
-        }
-
-        [Test]
-        public void Evolve_StatusIsDead_ThrowsException()
-        {
-            _cell.Kill(); // Status = Dead
-
             Assert.Throws<InvalidOperationException>(() => _cell.Evolve());
         }
 
@@ -158,6 +141,7 @@ namespace CellularAutomatonTests
             var fired = false;
 
             _cell.Killed += (sender, arg) => fired = true;
+            _cell.Revive();
             _cell.Kill();
 
             Assert.That(fired,Is.True.After(200));

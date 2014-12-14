@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace CellularAutomaton
 {
     [Serializable]
-    public class CellularGrid : ICellularGrid
+    public class CellularGrid
     {
         private List<Cell> _cells;
 
@@ -37,7 +38,6 @@ namespace CellularAutomaton
 
         public static CellularGrid MakeCellularGrid(int rowsCount, int columnsCount)
         {
-
             if (rowsCount < 1 || columnsCount < 1)
                 throw new ArgumentException("You can't use less that 1 for rows or columns count.");
 
@@ -95,10 +95,10 @@ namespace CellularAutomaton
             var list = new List<Cell>();
 
             var rowBeforeTarget = targetRow - 1;
-            var rowAfterTarget = targetRow + 1;
+            var rowAfterTarget  = targetRow + 1;
 
             var columnBeforeTarget = targetColumn - 1;
-            var columnAfterTarget = targetColumn + 1;
+            var columnAfterTarget  = targetColumn + 1;
 
             for (var row = rowBeforeTarget; row <= rowAfterTarget; row++)
             {
