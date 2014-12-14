@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using CellularAutomaton;
 using Moq;
@@ -10,36 +12,46 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class UniverseTests
     {
-        private const int ROWS_COUNT = 10;
-        private const int COLUMNS_COUNT = 15;
+        private const int ROWS_COUNT    = 12;
+        private const int COLUMNS_COUNT = 16;
         
-        private Universe _universe;
-
+        private Universe            _universe;
+        private Mock<ICellularGrid> _gridMock;
+ 
         [SetUp]
         public void Setup()
         {
-            _universe = Universe.MakeUniverse(ROWS_COUNT, COLUMNS_COUNT);
-        }
+            _gridMock = new Mock<ICellularGrid>(MockBehavior.Strict);
 
-        [Test]
-        public void MakeUniverse_ArgumentsGreaterThanZero_ReturnsUniverseInstance()
-        {
-            var universe1 = Universe.MakeUniverse(1, 1);
-            var universe2 = Universe.MakeUniverse(44, 24);
+            _gridMock.SetupGet(g => g.RowsCount).Returns(ROWS_COUNT);
+            _gridMock.SetupGet(g => g.ColumnsCount).Returns(COLUMNS_COUNT);
 
-            Assert.IsInstanceOf(typeof(Universe), universe1);
-            Assert.IsInstanceOf(typeof(Universe), universe2);
+            //setup cells
+            _gridMock.SetupGet(g => g.Cells).Returns(() =>
+            {
+                var list = new List<Cell>();
+
+                for (var row = 0; row < ROWS_COUNT; row++)
+                {
+                    for (var column = 0; column < COLUMNS_COUNT; column++)
+                    {
+                        list.Add(Cell.MakeCell(row, column));
+                    }
+                }
+
+                return list.AsEnumerable();
+            });
+            
+
+            TypeDescriptor.AddAttributes(_gridMock.Object, new SerializableAttribute());
+
+            _universe = Universe.MakeUniverse(_gridMock.Object);
         }
 
         [Test]
         public void MakeUniverse_ArgumentLessThanOne_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(0, 0));
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(0, 1));
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(1, 0));
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(-1, -1));
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(1, -1));
-            Assert.Throws<ArgumentException>(() => Universe.MakeUniverse(-1, 1));
+            Assert.Throws<ArgumentNullException>(() => Universe.MakeUniverse(null));
         }
 
       
@@ -55,8 +67,10 @@ namespace CellularAutomatonTests
         public void NextCycle_NormalCall_FiresCycleFinishedEvent()
         {
             var fired = false;
+
             _universe.CycleFinished += (sender, e) => fired = true;
             _universe.NextCycle();
+            
             Assert.That(fired, Is.True.After(200));
         }
 
@@ -64,54 +78,69 @@ namespace CellularAutomatonTests
         public void NextCycle_NormalCall_AgeIncreasedByOne()
         {
             var oldAge = _universe.Age;
+
             _universe.NextCycle();
+            
             Assert.AreEqual(_universe.Age, oldAge + 1);
         }
 
         [Test]
-        public void NextCycle_RulesListNotEmpty_ApplyRules()
+        public void NextCycle_RulesNotOverlapping_ApplyRules()
         {
-            var reviveAllCells = new Mock<IRule>();
-            var moveToNextGen = new Mock<IRule>();
-            var diagonalKill = new Mock<IRule>();
-
-            reviveAllCells.Setup(r => r.Transform(It.IsAny<CellularGrid>()))
-                          .Callback<CellularGrid>(u =>
+            var reviveRule  = new Mock<IRule>(MockBehavior.Strict);
+            var killRule    = new Mock<IRule>(MockBehavior.Strict);
+            var evolvedRule = new Mock<IRule>(MockBehavior.Strict);
+            
+            reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
+                      .Returns<ICellularGrid>(grid =>
+                      {
+                          foreach (var cell in grid.Cells.Where(c => c.Row % 3 == 0))
                           {
-                              foreach (var cell in u.Cells)
-                                  cell.Revive();
-                          });
+                              cell.Revive();
+                          }
 
-            moveToNextGen.Setup(r => r.Transform(It.IsAny<CellularGrid>()))
-                         .Callback<CellularGrid>(u =>
-                         {
-                             foreach (var cell in u.Cells)
-                                 cell.Evolve();
-                         });
+                          return grid;
+                      });
 
-            diagonalKill.Setup(r => r.Transform(It.IsAny<CellularGrid>()))
-                        .Callback<CellularGrid>(u =>
+            killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>()))
+                    .Returns<ICellularGrid>(grid =>
+                    {
+                        foreach (var cell in grid.Cells.Where(c => c.Row == 10))
                         {
-                            var cells = u.Cells.Where(c => c.Row == c.Column);
+                            cell.Kill();
+                        }
 
-                            foreach (var cell in cells)
-                                cell.Kill();
-                        });
+                        return grid;
+                    });
 
-            _universe.Rules.Add(reviveAllCells.Object);
-            _universe.Rules.Add(moveToNextGen.Object);
-            _universe.Rules.Add(diagonalKill.Object);
+            evolvedRule.Setup(r => r.Transform(It.IsAny<CellularGrid>()))
+                       .Returns<ICellularGrid>(grid =>
+                       {
+                           foreach (var cell in grid.Cells.Where(c => c.Column == 4 && 
+                                                                      c.Row % 3 != 0 && 
+                                                                      c.Row != 10))
+                           {
+                               cell.Revive();
+                               cell.Evolve();
+                           }
+
+                           return grid;
+                       });
+
+            _universe.Rules.Add(reviveRule.Object);
+            _universe.Rules.Add(killRule.Object);
+            _universe.Rules.Add(evolvedRule.Object);
 
             _universe.NextCycle();
 
-            var firstApplied = _universe.Grid.Cells.Where(c => c.Row != c.Column)
-                                               .All(c => c.Status == CellStatus.Alive);
+            var firstApplied = _universe.Grid.Cells.Where(c => c.Row % 3 == 0)
+                                                   .All(c => c.Status == CellStatus.Alive);
 
-            var secondApplied = _universe.Grid.Cells.Where(c => c.Row != c.Column)
-                                               .All(c => c.Generation == 2);
+            var secondApplied = _universe.Grid.Cells.Where(c => c.Row == 10)
+                                                    .All(c => c.Status == CellStatus.Dead);
 
-            var thirdApplied = _universe.Grid.Cells.Where(c => c.Row == c.Column)
-                                               .All(c => c.Status == CellStatus.Dead);
+            var thirdApplied = _universe.Grid.Cells.Where(c => c.Row == 7 && c.Column == 3)
+                                                   .All(c => c.Status == CellStatus.Alive && c.Generation == 2);
 
 
             Assert.IsTrue(secondApplied);

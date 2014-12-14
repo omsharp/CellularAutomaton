@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using CellularAutomaton;
 using NUnit.Framework;
@@ -30,7 +29,7 @@ namespace CellularAutomatonTests
         [Test]
         public void Indexer_UseValidIndices_ReturnsCellWithSpecifiedRowAndColumn()
         {
-            var cell = _grid[SPECIFIC_ROW, SPECIFIC_COLUMN];
+            var cell      = _grid[SPECIFIC_ROW, SPECIFIC_COLUMN];
             var excpected = (cell.Row == SPECIFIC_ROW) && (cell.Column == SPECIFIC_COLUMN);
 
             Assert.IsTrue(excpected);
@@ -49,6 +48,7 @@ namespace CellularAutomatonTests
         public void Cells_Get_ReturnsCollectionOfCells()
         {
             var expected = typeof(Cell);
+
             CollectionAssert.AllItemsAreInstancesOfType(_grid.Cells, expected);
         }
 
@@ -56,6 +56,7 @@ namespace CellularAutomatonTests
         public void Cells_Count_EqualsRowsTimesColumns()
         {
             var expected = _grid.RowsCount * _grid.ColumnsCount;
+
             Assert.AreEqual(_grid.Cells.Count(), expected);
         }
 
@@ -80,31 +81,30 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsOnlyOneCell_ReturnsEmptyCollection()
+        public void GetNeighboringCells_GridIsOnlyOneCell_ReturnsEmptyCollection()
         {
-            var oneCellUniverse = Universe.MakeUniverse(1, 1);
-            var actualCollection = oneCellUniverse.Grid.GetNeighboringCells(0, 0);
-            CollectionAssert.IsEmpty(actualCollection);
+            var grid   = CellularGrid.MakeCellularGrid(1, 1);
+            var actual = grid.GetNeighboringCells(0, 0);
+
+            CollectionAssert.IsEmpty(actual);
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleRowTargetIsFirstCell_ReturnsSingRightNeighbor()
+        public void GetNeighboringCells_GridIsSingleRowTargetIsFirstCell_ReturnsSingRightNeighbor()
         {
-            var universe = Universe.MakeUniverse(1, 5);
-
-            var neighbors = universe.Grid.GetNeighboringCells(0, 0).ToArray();
+            var grid      = CellularGrid.MakeCellularGrid(1, 5);
+            var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Single().Column, 1);
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleRowTargetIsLastCell_ReturnsSingLeftNeighbor()
+        public void GetNeighboringCells_GridIsSingleRowTargetIsLastCell_ReturnsSingLeftNeighbor()
         {
             var columnCount = 5;
-            var universe    = Universe.MakeUniverse(1, columnCount);
+            var grid        = CellularGrid.MakeCellularGrid(1, columnCount);
             var lastColumn  = columnCount - 1;
-
-            var neighbors = universe.Grid.GetNeighboringCells(0, lastColumn).ToArray();
+            var neighbors   = grid.GetNeighboringCells(0, lastColumn).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
             Assert.AreEqual(neighbors.Single().Row, 0);
@@ -112,11 +112,10 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleColumnTargetIsFirstCell_ReturnsSingBelowNeighbor()
+        public void GetNeighboringCells_GridIsSingleColumnTargetIsFirstCell_ReturnsSingBelowNeighbor()
         {
-            var universe = Universe.MakeUniverse(5, 1);
-
-            var neighbors = universe.Grid.GetNeighboringCells(0, 0).ToArray();
+            var grid      = CellularGrid.MakeCellularGrid(5, 1);
+            var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
             Assert.AreEqual(neighbors.Single().Row, 1);
@@ -124,13 +123,12 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleColumnTargetIsLastCell_ReturnsSingAboveNeighbor()
+        public void GetNeighboringCells_GridIsSingleColumnTargetIsLastCell_ReturnsSingAboveNeighbor()
         {
-            var rowCount = 5;
-            var universe = Universe.MakeUniverse(rowCount, 1);
-            var lastRow = rowCount - 1;
-
-            var neighbors = universe.Grid.GetNeighboringCells(lastRow, 0).ToArray();
+            var rowCount  = 5;
+            var grid      = CellularGrid.MakeCellularGrid(rowCount, 1);
+            var lastRow   = rowCount - 1;
+            var neighbors = grid.GetNeighboringCells(lastRow, 0).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
             Assert.AreEqual(neighbors.Single().Row, lastRow - 1);
@@ -138,11 +136,10 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleColumn_ReturnsSingleNeighbor()
+        public void GetNeighboringCells_GridIsSingleColumn_ReturnsSingleNeighbor()
         {
-            var universe = Universe.MakeUniverse(5, 1);
-
-            var neighbors = universe.Grid.GetNeighboringCells(0, 0).ToArray();
+            var grid      = CellularGrid.MakeCellularGrid(5, 1);
+            var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
             Assert.AreEqual(neighbors.Single().Row, 1);
@@ -150,16 +147,12 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleRowCellInMiddle_ReturnsSingleNeighbor()
+        public void GetNeighboringCells_GridIsSingleRowCellInMiddle_ReturnsSingleNeighbor()
         {
-            var universe = Universe.MakeUniverse(1, 10);
-
-            var targetCol = 5;
-
-            var neighbors = universe.Grid.GetNeighboringCells(0, targetCol).ToArray();
-
+            var grid       = CellularGrid.MakeCellularGrid(1, 10);
+            var targetCol  = 5;
+            var neighbors  = grid.GetNeighboringCells(0, targetCol).ToArray();
             var colIndices = new[] {targetCol - 1, targetCol + 1};
-
             var colInCount = neighbors.Count(neighbor => colIndices.Contains(neighbor.Column));
 
             Assert.AreEqual(neighbors.Count(), 2);
@@ -167,16 +160,12 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void GetNeighboringCells_UniverseIsSingleColumnCellInMiddle_ReturnsSingleNeighbor()
+        public void GetNeighboringCells_GridIsSingleColumnCellInMiddle_ReturnsSingleNeighbor()
         {
-            var universe = Universe.MakeUniverse(10, 1);
-
-            var targetRow = 5;
-
-            var neighbors = universe.Grid.GetNeighboringCells(targetRow, 0).ToArray();
-
+            var grid       = CellularGrid.MakeCellularGrid(10, 1);
+            var targetRow  = 5;
+            var neighbors  = grid.GetNeighboringCells(targetRow, 0).ToArray();
             var rowIndices = new[] { targetRow - 1, targetRow + 1 };
-
             var rowInCount = neighbors.Count(neighbor => rowIndices.Contains(neighbor.Row));
 
             Assert.AreEqual(neighbors.Count(), 2);
@@ -442,38 +431,6 @@ namespace CellularAutomatonTests
         {
             var cell = Cell.MakeCell(4,3);
             Assert.Throws<ArgumentException>(() => _grid.GetNeighboringCells(cell));
-        }
-
-        [Test]
-        public void GetNeighboringCells_CellInTheUniverse_ReturnsNeighbors()
-        {
-            var targetRow = 3;
-            var targetCol = 6;
-
-            var cell = _grid[targetRow, targetCol];
-
-            var neighbors = _grid.GetNeighboringCells(cell).ToArray();
-
-            var rowIndices = new[] { targetRow - 1, targetRow, targetRow + 1 };
-            var colIndices = new[] { targetCol - 1, targetCol, targetCol + 1 };
-
-            var rowInCount = 0;
-            var colInCount = 0;
-
-            foreach (var neighbor in neighbors)
-            {
-                if (rowIndices.Contains(neighbor.Row))
-                    rowInCount++;
-
-                if (colIndices.Contains(neighbor.Column))
-                    colInCount++;
-            }
-
-            Assert.AreEqual(neighbors.Count(), 8);
-            Assert.AreEqual(rowInCount, 8);
-            Assert.AreEqual(colInCount, 8);
-        }
-
-        
+        } 
     }
 }

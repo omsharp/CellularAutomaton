@@ -40,6 +40,7 @@ namespace CellularAutomatonTests
         public void Revive_StatusNotAlive_ChangeStatusToAlive()
         {
             _cell.Revive();
+
             Assert.AreEqual(_cell.Status, CellStatus.Alive);
         }
 
@@ -48,6 +49,7 @@ namespace CellularAutomatonTests
         {
             _cell.Revive();
             _cell.Kill();
+
             Assert.AreEqual(_cell.Status, CellStatus.Dead);
         }
 
@@ -55,6 +57,7 @@ namespace CellularAutomatonTests
         public void Kill_StatusIsDead_ThrowsException()
         {
             _cell.Kill();
+
             Assert.Throws<InvalidOperationException>(() => _cell.Kill());
         }
 
@@ -63,6 +66,7 @@ namespace CellularAutomatonTests
         {
             _cell.Kill();
             _cell.Revive();
+
             Assert.AreEqual(_cell.Generation, 1);
         }
 
@@ -77,17 +81,11 @@ namespace CellularAutomatonTests
         public void Evolve_StatusIsAlive_GenerationIncreasedByOne()
         {
             var beforeGeneration = _cell.Generation;
+
             _cell.Revive();  // Generation = 1
             _cell.Evolve();  // Generation = 2
-            Assert.AreEqual(_cell.Generation, beforeGeneration + 2);
-        }
 
-        [Test]
-        public void Evolve_StatusIsAlive_ReturnsGenerationAfterIncreaseing()
-        {
-            _cell.Revive(); //  Status = Alive  .. Generation = 1
-            _cell.Evolve(); //  Status = Alive  ..  Generation = 2
-            Assert.AreEqual(_cell.Evolve(), 3);
+            Assert.AreEqual(_cell.Generation, beforeGeneration + 2);
         }
 
         [Test]
@@ -101,6 +99,7 @@ namespace CellularAutomatonTests
         public void Evolve_StatusIsDead_ThrowsException()
         {
             _cell.Kill(); // Status = Dead
+
             Assert.Throws<InvalidOperationException>(() => _cell.Evolve());
         }
 
@@ -110,6 +109,7 @@ namespace CellularAutomatonTests
             _cell.Revive();
             _cell.Evolve();
             _cell.Kill();
+
             Assert.AreEqual(_cell.Generation, 0);
         }
 
@@ -145,8 +145,10 @@ namespace CellularAutomatonTests
         public void Revive_StatusNotAlive_FireRevivedEvent()
         {
             var fired = false;
+
             _cell.Revived += (sender, arg) => fired = true;
             _cell.Revive();
+
             Assert.That(fired, Is.True.After(200));
         }
 
@@ -154,11 +156,24 @@ namespace CellularAutomatonTests
         public void Kill_StatusIsNotDead_FireKilledEvent()
         {
             var fired = false;
+
             _cell.Killed += (sender, arg) => fired = true;
             _cell.Kill();
+
             Assert.That(fired,Is.True.After(200));
         }
 
+        [Test]
+        public void Evolve_Ok_FiredEvolvedEvent()
+        {
+            var fired = false;
+            
+            _cell.Evolved += (sender, arg) => fired = true;
+            _cell.Revive();
+            _cell.Evolve();
+            
+            Assert.That(fired, Is.True.After(200));
+        }
         [Test]
         public void ToString_NormalCall_ReturnsIdBasedOnRowAndColumn()
         {

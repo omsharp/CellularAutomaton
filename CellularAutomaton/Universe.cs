@@ -15,7 +15,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Gets a grid of all the cells in this universe.
         /// </summary>
-        public CellularGrid Grid { get; private set; }
+        public ICellularGrid Grid { get; private set; }
 
         /// <summary>
         /// Gets the count of all the cycles done so far. 
@@ -28,10 +28,10 @@ namespace CellularAutomaton
         public List<IRule> Rules { get; set; }
 
         
-        private Universe(int rowsCount, int columnsCount)
+        private Universe(ICellularGrid cellularGrid)
         {
             Age   = 0;
-            Grid  = CellularGrid.MakeCellularGrid(rowsCount, columnsCount);
+            Grid  = cellularGrid;
             Rules = new List<IRule>();
         }
 
@@ -39,21 +39,20 @@ namespace CellularAutomaton
         /// Returns a new Universe object.
         /// Throws ArgumentException if rowsCount or columnsCount is negative.
         /// </summary>
-        /// <param name="rowsCount">The count of rows in the whole universe.</param>
-        /// <param name="columnsCount">The count of columns in the whole universe.</param>
-        public static Universe MakeUniverse(int rowsCount, int columnsCount)
+        /// <param name="cellularGrid">ICellularGrid object that holds the grid of cells in this universe.</param>
+        public static Universe MakeUniverse(ICellularGrid cellularGrid)
         {
-            if (rowsCount < 1 || columnsCount < 1)
-                throw new ArgumentException("You can't use less that 1 for rows or columns count.");
-
-            return new Universe(rowsCount, columnsCount);
+            if (cellularGrid == null)
+                throw new ArgumentNullException("cellularGrid", "Argument can't be null!");
+            
+            return new Universe(cellularGrid);
         }
 
         private void ApplyRules()
         {
             if(Rules.Count < 1) return;
 
-            //pass a clone of Grid not itself to each rule.
+            //pass a clone of Grid to each rule.
             var transformations = Rules.Select(rule => rule.Transform(Grid.Clone()));
 
             foreach (var transformation in transformations)

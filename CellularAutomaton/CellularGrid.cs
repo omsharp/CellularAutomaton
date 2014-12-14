@@ -5,7 +5,7 @@ using System.Linq;
 namespace CellularAutomaton
 {
     [Serializable]
-    public class CellularGrid
+    public class CellularGrid : ICellularGrid
     {
         private List<Cell> _cells;
 
@@ -143,7 +143,7 @@ namespace CellularAutomaton
         /// </summary>
         public override string ToString()
         {
-            return string.Format("Cellular Grid with {0} rows and {1} columns.",RowsCount, ColumnsCount);
+            return string.Format("CellularGrid with {0} rows and {1} columns.",RowsCount, ColumnsCount);
         }
     }
 }

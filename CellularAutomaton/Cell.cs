@@ -6,15 +6,20 @@ namespace CellularAutomaton
     public class Cell
     {
         /// <summary>
-        /// Fired whenever this cell is revived.
+        /// Fired after the cell is revived.
         /// </summary>
         public event EventHandler Revived;
 
         /// <summary>
-        /// Fired whenever this cell is killed.
+        /// Fired after the cell is killed.
         /// </summary>
         public event EventHandler Killed;
-        //TODO: Add a new event: Evolved.... fires after the cell evolves..
+
+        /// <summary>
+        /// Fired after the cell evolves.
+        /// </summary>
+        public event EventHandler Evolved;
+        
         /// <summary>
         /// Gets the count of times this cell is killed.
         /// </summary>
@@ -106,7 +111,7 @@ namespace CellularAutomaton
         /// Moves this cell to the next generation.
         /// Throws InvalidOperationException if the cell is Inactive or Dead.
         /// </summary>
-        public int Evolve()
+        public void Evolve()
         {
             if (Status == CellStatus.Inactive)
                 throw new InvalidOperationException("You can't evolve an Inactive cell.");
@@ -114,7 +119,10 @@ namespace CellularAutomaton
             if (Status == CellStatus.Dead)
                 throw new InvalidOperationException("You can't evolve a Dead cell.");
 
-            return ++Generation;
+            Generation++;
+
+            if (Evolved != null)
+                Evolved(this, new EventArgs());
         }
 
         /// <summary>
