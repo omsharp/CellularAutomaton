@@ -15,7 +15,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Gets a grid of all the cells in this universe.
         /// </summary>
-        public ICellularGrid Grid { get; private set; }
+        public ICellGrid Grid { get; private set; }
 
         /// <summary>
         /// Gets the count of all the cycles done so far. 
@@ -28,7 +28,7 @@ namespace CellularAutomaton
         public List<IRule> Rules { get; set; }
 
 
-        private Universe(ICellularGrid cellularGrid)
+        private Universe(ICellGrid cellularGrid)
         {
             Age   = 0;
             Grid  = cellularGrid;
@@ -40,7 +40,7 @@ namespace CellularAutomaton
         /// Throws ArgumentException if rowsCount or columnsCount is negative.
         /// </summary>
         /// <param name="cellularGrid">ICellularGrid object that holds the grid of cells in this universe.</param>
-        public static Universe MakeUniverse(ICellularGrid cellularGrid)
+        public static Universe MakeUniverse(ICellGrid cellularGrid)
         {
             if (cellularGrid == null)
                 throw new ArgumentNullException("cellularGrid", "Argument can't be null!");
@@ -48,27 +48,20 @@ namespace CellularAutomaton
             return new Universe(cellularGrid);
         }
 
-        public void Transform(ICellularContainer grid)
-        {
-            foreach (var cell in grid.Cells.Where(cell => grid.GetNeighboringCells(cell).Count(c => c.Alive) > 3))
-            {
-                cell.Action = (c1) => c1.Revive();
-            }
-        }
-
         private void ApplyRules()
         {
             if (Rules.Count < 1) return;
 
+            var actions = new List<Action>();
 
             foreach (var rule in Rules)
             {
-                Transform(Grid);
+               actions.AddRange(rule.Transform(Grid));
             }
 
-            foreach (var cell in Grid.Cells)
+            foreach (var action in actions)
             {
-                cell.DoAction();
+                action();
             }
 
             ////pass a clone of Grid to each rule.

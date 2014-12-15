@@ -3,36 +3,40 @@ using System.Collections.Generic;
 
 namespace CellularAutomaton
 {
-    public interface ICellularGrid : ICellularContainer
+    public interface ICellGrid : ICellViewGrid
     {
-        new IEnumerable<Cell> Cells { get; }
+        IEnumerable<Cell> Cells { get; }
 
-        new IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn);
-            IEnumerable<Cell> GetNeighboringCells(Cell targetCell);
+        IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn);
+        IEnumerable<Cell> GetNeighboringCells(Cell targetCell);
 
         new Cell this[int row, int column] { get; }
     }
 
-    public interface ICellularContainer
+    public interface ICellViewGrid
     {
         int RowsCount    { get; }
         int ColumnsCount { get; }
 
-        IEnumerable<ICellView> Cells { get; }
+        IEnumerable<ICellView> CellViews { get; }
 
-        IEnumerable<ICellView> GetNeighboringCells(int targetRow, int targetColumn);
-        IEnumerable<ICellView> GetNeighboringCells(ICellView targetCell);
+        IEnumerable<ICellView> GetNeighboringCellViews(int targetRow, int targetColumn);
+        IEnumerable<ICellView> GetNeighboringCellViews(ICellView targetCell);
 
-        Cell this[int row, int column] { get; }
+        ICellView this[int row, int column] { get; }
     }
 
     public interface ICellView
     {
+        event EventHandler Revived;
+        event EventHandler Killed;
+        event EventHandler Evolved;
+
         int  Row        { get; }
         int  Column     { get; }
         int  Generation { get; }
         bool Alive      { get; }
 
-        Action<Cell> Action { get; set; }
+        Action<Cell> ActionToDoNext { get; set; }
     }   
 }

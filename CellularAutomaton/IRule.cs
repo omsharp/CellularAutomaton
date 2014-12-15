@@ -1,10 +1,11 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace CellularAutomaton
 {
     public interface IRule
     {
-        void Transform(ICellularContainer grid);
+        IEnumerable<Action> Transform(ICellViewGrid grid);
     }
 }

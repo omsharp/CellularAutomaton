@@ -50,16 +50,18 @@ namespace CellularAutomaton
         /// </summary>
         public bool Alive { get; private set; }
 
-
-        public Action<Cell> Action { get; set; }
+        /// <summary>
+        /// Sets or Gets the action that will be performed on this cell.
+        /// </summary>
+        public Action<Cell> ActionToDoNext { get; set; }
 
         public void DoAction()
         {
-            if (Action == null) return;
+            if (ActionToDoNext == null) return;
 
-            Action(this);
+            ActionToDoNext(this);
 
-            Action = null;
+            ActionToDoNext = null;
         }
 
         private Cell(int row, int column)

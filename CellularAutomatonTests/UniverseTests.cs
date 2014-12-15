@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using CellularAutomaton;
 using Moq;
@@ -12,39 +11,33 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class UniverseTests
     {
-        private const int ROWS_COUNT    = 12;
-        private const int COLUMNS_COUNT = 16;
+        private const int ROWS_COUNT    = 10;
+        private const int COLUMNS_COUNT = 13;
         
         private Universe            _universe;
-        private Mock<ICellularGrid> _gridMock;
+        private Mock<ICellGrid> _gridMock;
  
         [SetUp]
         public void Setup()
         {
-            _gridMock = new Mock<ICellularGrid>(MockBehavior.Strict);
+            _gridMock = new Mock<ICellGrid>(MockBehavior.Strict);
 
             _gridMock.SetupGet(g => g.RowsCount).Returns(ROWS_COUNT);
             _gridMock.SetupGet(g => g.ColumnsCount).Returns(COLUMNS_COUNT);
 
             //setup cells
-            _gridMock.SetupGet(g => g.Cells).Returns(() =>
+            var cells = new List<Cell>();
+
+            for (var row = 0; row < ROWS_COUNT; row++)
             {
-                var list = new List<Cell>();
-
-                for (var row = 0; row < ROWS_COUNT; row++)
+                for (var column = 0; column < COLUMNS_COUNT; column++)
                 {
-                    for (var column = 0; column < COLUMNS_COUNT; column++)
-                    {
-                        list.Add(Cell.MakeCell(row, column));
-                    }
+                    cells.Add(Cell.MakeCell(row, column));
                 }
+            }
 
-                return list.AsEnumerable();
-            });
+            _gridMock.SetupGet(g => g.Cells).Returns(cells);
             
-
-            TypeDescriptor.AddAttributes(_gridMock.Object, new SerializableAttribute());
-
             _universe = Universe.MakeUniverse(_gridMock.Object);
         }
 
@@ -85,60 +78,59 @@ namespace CellularAutomatonTests
         }
 
         [Test]
-        public void NextCycle_RulesNotOverlapping_ApplyRules()
+        public void NextCycle_RulesNotOverlapping_ApplyAllRules()
         {
-            var cellGrid = CellularGrid.MakeCellularGrid(10, 15);
-            var universe = Universe.MakeUniverse(cellGrid);
-
             var reviveRule = new Mock<IRule>(MockBehavior.Strict);
             var killRule   = new Mock<IRule>(MockBehavior.Strict);
             var evolveRule = new Mock<IRule>(MockBehavior.Strict);
 
-            var grid1 = cellGrid.Clone();
-            var grid2 = cellGrid.Clone();
-            var grid3 = cellGrid.Clone();
+            //Setup the return of the first Rule.
+            reviveRule.Setup(r => r.Transform(It.IsAny<ICellViewGrid>())).Returns(()=> 
+                _universe.Grid.Cells.Where(c => c.Row % 3 == 0).Select(cell => (Action) cell.Revive));
 
-            foreach (var cell in grid1.Cells.Where(c => c.Row % 3 == 0))
+            //Setup the return of the second Rule.
+            killRule.Setup(r => r.Transform(It.IsAny<ICellViewGrid>())).Returns(() =>
             {
-                cell.Revive();
-            }
+                var list = new List<Action>();
 
+                foreach (var cell in _universe.Grid.Cells.Where(c => c.Row == 8))
+                {
+                    list.Add(cell.Revive);
+                    list.Add(cell.Evolve);
+                }
 
-            foreach (var cell in grid2.Cells.Where(c => c.Row == 8))
+                return list;
+            });
+
+            //Setup the return of the third Rule.
+            evolveRule.Setup(r => r.Transform(It.IsAny<ICellViewGrid>())).Returns(() =>
             {
-                cell.Revive();
-                cell.Evolve();
-            }
+                var list = new List<Action>();
+                var grid = _universe.Grid.Cells.Where(c => c.Column == 4 && c.Row % 3 != 0 && c.Row != 8);
+                
+                foreach (var cell in grid)
+                {
+                    cell.Revive();
+                    cell.Evolve();
+                    cell.Evolve();
+                }
 
+                return list;
+            });
 
-            foreach (var cell in grid3.Cells.Where(c => c.Column  == 4 && 
-                                                        c.Row % 3 != 0 && 
-                                                        c.Row     != 8))
-            {
-                cell.Revive();
-                cell.Evolve();
-                cell.Evolve();
-            }
+            _universe.Rules.Add(reviveRule.Object);
+            _universe.Rules.Add(killRule.Object);
+            _universe.Rules.Add(evolveRule.Object);
 
-            //reviveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid1);
+            _universe.NextCycle();
 
-            //killRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid2);
-            
-            //evolveRule.Setup(r => r.Transform(It.IsAny<ICellularGrid>())).Returns(grid3);
+            //All cells in rows 0, 3, 6, 9 are Alive and Generation 1
+            var firstApplied = _universe.Grid.Cells.Where(c => c.Row % 3 == 0).All(c => c.Alive);
 
-            universe.Rules.Add(reviveRule.Object);
-            universe.Rules.Add(killRule.Object);
-            universe.Rules.Add(evolveRule.Object);
-
-
-            universe.NextCycle();
-
-            var firstApplied = _universe.Grid.Cells.Where(c => c.Row % 3 == 0)
-                                                   .All(c => c.Alive);
-
-            var secondApplied = _universe.Grid.Cells.Where(c => c.Row == 8)
-                                                    .All(c => c.Alive && c.Generation == 2);
-
+            //All cells in row 8 are Alive and Generation 2
+            var secondApplied = _universe.Grid.Cells.Where(c => c.Row == 8).All(c => c.Alive && 
+                                                                                c.Generation == 2);
+            //All cells in column 4 and rows 1, 2, 4, 5, 7 are Alive and Generation 3
             var thirdApplied = _universe.Grid.Cells.Where(c => c.Column == 4 &&
                                                                c.Row % 3 != 0 &&
                                                                c.Row != 8).All(c => c.Alive && 
