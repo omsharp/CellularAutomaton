@@ -12,11 +12,10 @@ using CellularAutomaton;
 
 namespace CellularAutomatonDemo
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        private CellularGrid _universe;
 
-        public Form1()
+        public MainForm()
         {
 
             InitializeComponent();
@@ -26,6 +25,16 @@ namespace CellularAutomatonDemo
         {
             
 
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+            var pen = new Pen(Color.Red);
+            var gfx = panel1.CreateGraphics();
+
+            var rec = new Rectangle(20,20,4,4);
+
+            gfx.DrawRectangle(pen, rec);
         }
     }
 }

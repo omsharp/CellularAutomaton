@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace CellularAutomatonTests
 {
     [TestFixture]
-    public class CellularGridTests
+    public class SquareCellularGridTests
     {
         private const int ROWS_COUNT    = 10;
         private const int COLUMNS_COUNT = 15;
@@ -18,12 +18,12 @@ namespace CellularAutomatonTests
         private const int SPECIFIC_ROW    = 5;
         private const int SPECIFIC_COLUMN = 9;
 
-        private CellularGrid _grid;
+        private SquareCellularGrid _grid;
 
         [SetUp]
         public void Setup()
         {
-            _grid = CellularGrid.MakeCellularGrid(ROWS_COUNT, COLUMNS_COUNT);
+            _grid = new SquareCellularGrid(ROWS_COUNT, COLUMNS_COUNT);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace CellularAutomatonTests
         [Test]
         public void Cells_Get_ReturnsCollectionOfCells()
         {
-            var expected = typeof(Cell);
+            var expected = typeof(SquareCell);
 
             CollectionAssert.AllItemsAreInstancesOfType(_grid.Cells, expected);
         }
@@ -83,7 +83,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsOnlyOneCell_ReturnsEmptyCollection()
         {
-            var grid   = CellularGrid.MakeCellularGrid(1, 1);
+            var grid   = new SquareCellularGrid(1, 1);
             var actual = grid.GetNeighboringCells(0, 0);
 
             CollectionAssert.IsEmpty(actual);
@@ -92,7 +92,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsSingleRowTargetIsFirstCell_ReturnsSingRightNeighbor()
         {
-            var grid      = CellularGrid.MakeCellularGrid(1, 5);
+            var grid      = new SquareCellularGrid(1, 5);
             var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Single().Column, 1);
@@ -102,7 +102,7 @@ namespace CellularAutomatonTests
         public void GetNeighboringCells_GridIsSingleRowTargetIsLastCell_ReturnsSingLeftNeighbor()
         {
             var columnCount = 5;
-            var grid        = CellularGrid.MakeCellularGrid(1, columnCount);
+            var grid        = new SquareCellularGrid(1, columnCount);
             var lastColumn  = columnCount - 1;
             var neighbors   = grid.GetNeighboringCells(0, lastColumn).ToArray();
 
@@ -114,7 +114,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsSingleColumnTargetIsFirstCell_ReturnsSingBelowNeighbor()
         {
-            var grid      = CellularGrid.MakeCellularGrid(5, 1);
+            var grid      = new SquareCellularGrid(5, 1);
             var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
@@ -126,7 +126,7 @@ namespace CellularAutomatonTests
         public void GetNeighboringCells_GridIsSingleColumnTargetIsLastCell_ReturnsSingAboveNeighbor()
         {
             var rowCount  = 5;
-            var grid      = CellularGrid.MakeCellularGrid(rowCount, 1);
+            var grid      = new SquareCellularGrid(rowCount, 1);
             var lastRow   = rowCount - 1;
             var neighbors = grid.GetNeighboringCells(lastRow, 0).ToArray();
 
@@ -138,7 +138,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsSingleColumn_ReturnsSingleNeighbor()
         {
-            var grid      = CellularGrid.MakeCellularGrid(5, 1);
+            var grid      = new SquareCellularGrid(5, 1);
             var neighbors = grid.GetNeighboringCells(0, 0).ToArray();
 
             Assert.AreEqual(neighbors.Count(), 1);
@@ -149,7 +149,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsSingleRowCellInMiddle_ReturnsSingleNeighbor()
         {
-            var grid       = CellularGrid.MakeCellularGrid(1, 10);
+            var grid       = new SquareCellularGrid(1, 10);
             var targetCol  = 5;
             var neighbors  = grid.GetNeighboringCells(0, targetCol).ToArray();
             var colIndices = new[] {targetCol - 1, targetCol + 1};
@@ -162,7 +162,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_GridIsSingleColumnCellInMiddle_ReturnsSingleNeighbor()
         {
-            var grid       = CellularGrid.MakeCellularGrid(10, 1);
+            var grid       = new SquareCellularGrid(10, 1);
             var targetRow  = 5;
             var neighbors  = grid.GetNeighboringCells(targetRow, 0).ToArray();
             var rowIndices = new[] { targetRow - 1, targetRow + 1 };
@@ -429,7 +429,7 @@ namespace CellularAutomatonTests
         [Test]
         public void GetNeighboringCells_CellNotInTheUniverse_ThrowsException()
         {
-            var cell = Cell.MakeCell(4,3);
+            var cell = new SquareCell(4,3);
             Assert.Throws<ArgumentException>(() => _grid.GetNeighboringCells(cell));
         }
 

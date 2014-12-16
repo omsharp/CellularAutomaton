@@ -7,7 +7,7 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class CellTests
     {
-        private Cell _cell;
+        private SquareCell _cell;
 
         private const int ROW    = 2;
         private const int COLUMN = 4;
@@ -15,13 +15,7 @@ namespace CellularAutomatonTests
         [SetUp]
         public void Setup()
         {
-            _cell = Cell.MakeCell(ROW, COLUMN);
-        }
-
-        [Test]
-        public void MakeCell_NegativeArguments_ThrowsException()
-        {
-            Assert.Throws<ArgumentException>(() => Cell.MakeCell(-1, -2));
+            _cell = new SquareCell(ROW, COLUMN);
         }
 
         [Test]

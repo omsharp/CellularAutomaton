@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using CellularAutomaton;
+using CellularAutomaton.Core;
 using Moq;
 using NUnit.Framework;
 
@@ -14,47 +14,22 @@ namespace CellularAutomatonTests
         private const int ROWS_COUNT    = 10;
         private const int COLUMNS_COUNT = 13;
         
-        private Universe            _universe;
-        private Mock<CellularGrid> _gridMock;
+        private Universe<SquareCell, SquareCellularGrid> _universe;
  
         [SetUp]
         public void Setup()
         {
-            //_gridMock = new Mock<CellularGrid>(MockBehavior.Strict);
+            var grid = new SquareCellularGrid(ROWS_COUNT, COLUMNS_COUNT);
 
-            //_gridMock.SetupGet(g => g.RowsCount).Returns(ROWS_COUNT);
-            //_gridMock.SetupGet(g => g.ColumnsCount).Returns(COLUMNS_COUNT);
-
-            ////setup cells
-            //var cells = new List<Cell>();
-
-            //for (var row = 0; row < ROWS_COUNT; row++)
-            //{
-            //    for (var column = 0; column < COLUMNS_COUNT; column++)
-            //    {
-            //        cells.Add(Cell.MakeCell(row, column));
-            //    }
-            //}
-
-            //_gridMock.SetupGet(g => g.Cells).Returns(cells);
-            
-            _universe = Universe.MakeUniverse(CellularGrid.MakeCellularGrid(10,13));
+            _universe = new Universe<SquareCell, SquareCellularGrid>(grid);
         }
 
         [Test]
         public void MakeUniverse_ArgumentLessThanOne_ThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(() => Universe.MakeUniverse(null));
+            SquareCellularGrid n = null;
+            Assert.Throws<ArgumentNullException>(() => new Universe<SquareCell, SquareCellularGrid>(n));
         }
-
-      
-        [Test]
-        public void Rules_Get_ReturnsCollectionOfIRules()
-        {
-            CollectionAssert.AllItemsAreInstancesOfType(_universe.Rules, typeof(IRule));
-        }
-
-        
 
         [Test]
         public void NextCycle_NormalCall_FiresCycleFinishedEvent()
@@ -80,35 +55,34 @@ namespace CellularAutomatonTests
         [Test]
         public void NextCycle_RulesNotOverlapping_ApplyAllRules()
         {
-            var reviveRule = new Mock<IRule>(MockBehavior.Strict);
-            var killRule   = new Mock<IRule>(MockBehavior.Strict);
-            var evolveRule = new Mock<IRule>(MockBehavior.Strict);
 
+            
             //Setup the return of the first Rule.
-            reviveRule.Setup(r => r.GetPredicate()).Returns((c, grid) => (c.Row % 3 == 0));
-            reviveRule.Setup(r => r.GetAction()).Returns(c => c.Revive());
+            var reviveRule = _universe.MakeNewRule("Rule-1")
+                            .WhenTrue((c, grid) => (c.Row % 3 == 0))
+                            .Do(c => c.Revive());
 
             //Setup the return of the second Rule.
-            killRule.Setup(r => r.GetPredicate()).Returns((c, grid) => c.Row == 8);
-            killRule.Setup(r => r.GetAction()).Returns((c) =>
-                                                            {
-                                                                c.Revive();
-                                                                c.Evolve();
-                                                            });
+            var killRule = _universe.MakeNewRule("Rule-2")
+                            .WhenTrue((c, grid) => c.Row == 8)
+                            .Do(c =>
+                            {
+                                c.Revive();
+                                c.Evolve();
+                            });
 
             //Setup the return of the third Rule.
-            evolveRule.Setup(r => r.GetPredicate()).Returns((c, grid) => c.Column == 4 && 
-                                                                         c.Row % 3 != 0 && 
-                                                                         c.Row != 8);
-            evolveRule.Setup(r => r.GetAction()).Returns(c =>
-                                                            {
-                                                                c.Revive();
-                                                                c.Evolve(2);
-                                                            }); 
-
-            _universe.Rules.Add(reviveRule.Object);
-            _universe.Rules.Add(killRule.Object);
-            _universe.Rules.Add(evolveRule.Object);
+            var evolveRule = _universe.MakeNewRule("Rule-3")
+                .WhenTrue((c, grid) => c.Column == 4 && c.Row % 3 != 0 && c.Row != 8)
+                .Do(c =>
+                {
+                    c.Revive();
+                    c.EvolveFor(2);
+                }); 
+          
+            _universe.Rules.Add(reviveRule);
+            _universe.Rules.Add(killRule);
+            _universe.Rules.Add(evolveRule);
 
             _universe.NextCycle();
 
@@ -135,6 +109,19 @@ namespace CellularAutomatonTests
             Assert.IsFalse(string.IsNullOrEmpty(actual));
         }
 
+        [Test]
+        public void InitialRule_NotNull_ShouldWorkAsExpected()
+        {
+            var init = Rule<SquareCell, SquareCellularGrid>.MakeRule("Init")
+                .WhenTrue((c, g) => c.Row == g.RowsCount - 1 || c.Column == 3)
+                .Do(c => c.Revive());
+            
+            var universe = new Universe<SquareCell, SquareCellularGrid>(new SquareCellularGrid(5, 5), init);
+
+            var alive = universe.Grid.Cells.Count(c => c.Alive); //9
+
+            Assert.AreEqual(9, alive);
+        }
      
     }
 }
