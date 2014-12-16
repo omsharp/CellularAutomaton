@@ -47,7 +47,7 @@ namespace CellularAutomaton.Core
             Name = name;
         }
 
-        public static Rule<TCell,TGrid> MakeRule(string ruleName)
+        public static IRuleCondition<TCell,TGrid> MakeRule(string ruleName)
         {
             return new Rule<TCell, TGrid>(ruleName);
         }

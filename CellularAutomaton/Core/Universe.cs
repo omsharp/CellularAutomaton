@@ -67,21 +67,32 @@ namespace CellularAutomaton.Core
         {
             if (Rules.Count < 1) return;
 
-            var rules = Rules.Select(r =>
-            {
-                var condition = r.Condition;
+            //var rules = Rules.Select(r =>
+            //{
+            //    var condition = r.Condition;
                 
-                return new {                    //use the returned lambda to find the wanted cells
-                             List = Grid.Cells.Where(cell => condition(cell, Grid)),
-                             r.Action
-                           };
-            });
+            //    return new {                    //use the returned lambda to find the wanted cells
+            //                 List = Grid.Cells.Where(cell => condition(cell, Grid)),
+            //                 r.Action
+            //               };
+            //});
 
-            foreach (var rule in rules)
+            var dict = new Dictionary<Action<TCell>, IEnumerable<TCell>>();
+
+            foreach (var rule in Rules)
             {
-                foreach (var cell in rule.List)
+                var rule1 = rule;
+
+                var list = Grid.Cells.Where(c => rule1.Condition(c, Grid)).ToArray();
+                dict.Add(rule.Action, list);
+            }
+
+
+            foreach (var rule in dict)
+            {
+                foreach (var cell in rule.Value)
                 {
-                    rule.Action(cell);
+                    rule.Key(cell);
                 }
             }
         }
