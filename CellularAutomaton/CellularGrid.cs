@@ -5,7 +5,7 @@ using System.Linq;
 namespace CellularAutomaton
 {
     [Serializable]
-    public class CellularGrid : ICellGrid
+    public class CellularGrid : ICellularGrid<Cell>, ICellularGrid<ICellState>
     {
         private List<Cell> _cells;
 
@@ -14,22 +14,21 @@ namespace CellularAutomaton
         /// </summary>
         public int RowsCount { get; private set; }
 
+        public IEnumerable<Cell> Cells { get { return _cells; } }
+
         /// <summary>
         /// Gets the total count of columns.
         /// </summary>
         public int ColumnsCount { get; private set; }
 
-        /// <summary>
-        /// Gets an IEnumerable of all cells.
-        /// </summary>
-        public IEnumerable<Cell> Cells
+        ICellState ICellularGrid<ICellState>.this[int row, int column]
         {
-            get { return _cells; }
+            get { return this[row,column]; }
         }
 
         private CellularGrid(int rowsCount, int columnsCount)
         {
-            RowsCount    = rowsCount;
+            RowsCount = rowsCount;
             ColumnsCount = columnsCount;
 
             InitializeCells();
@@ -96,10 +95,10 @@ namespace CellularAutomaton
             var list = new List<Cell>();
 
             var rowBeforeTarget = targetRow - 1;
-            var rowAfterTarget  = targetRow + 1;
+            var rowAfterTarget = targetRow + 1;
 
             var columnBeforeTarget = targetColumn - 1;
-            var columnAfterTarget  = targetColumn + 1;
+            var columnAfterTarget = targetColumn + 1;
 
             for (var row = rowBeforeTarget; row <= rowAfterTarget; row++)
             {
@@ -133,66 +132,30 @@ namespace CellularAutomaton
             if (targetCell == null)
                 throw new ArgumentNullException("targetCell", "Target cell is null!");
 
-            if (Cells.Contains(targetCell) == false)
+            if (_cells.Contains(targetCell) == false)
                 throw new ArgumentException("The passed cell is not contained in this grid!");
 
             return GetNeighboringCells(targetCell.Row, targetCell.Column);
         }
 
-        #region "ICellViewGrid Methods"
 
-        /// <summary>
-        /// Gets an IEnumerable of all cellViews.
-        /// </summary>
-        IEnumerable<ICellView> ICellViewGrid.CellViews
+        public ICellularGrid<ICellState> AsReadOnly()
+        {
+            return this;
+        } 
+
+        #region "*** ICellularGrid<ICellState> Implementations ***"
+
+        IEnumerable<ICellState> ICellularCanvas<ICellState>.Cells
         {
             get { return Cells; }
         }
 
-        /// <summary>
-        /// Returns a list of all the neighboring cellViews of the selected target cellView. 
-        /// Throws ArgumentOutOfRangeException if one of the arguments is out of range.
-        /// </summary>
-        /// <param name="targetRow">The row of the target cell.</param>
-        /// <param name="targetColumn">The column of the target cell.</param>
-        /// <returns>IEnumerable of Cell</returns>
-        public IEnumerable<ICellView> GetNeighboringCellViews(int targetRow, int targetColumn)
+        IEnumerable<ICellState> ICellularCanvas<ICellState>.GetNeighboringCells(ICellState target)
         {
-            if (targetRow < 0 || targetRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetRow",
-                                                      "Target row was outside the bounds of this grid.");
-
-            if (targetColumn < 0 || targetColumn >= ColumnsCount)
-                throw new ArgumentOutOfRangeException("targetColumn",
-                                                      "Target column was outside the bounds of this grid.");
-
-            return GetNeighboringCells(targetRow, targetColumn);
+            return GetNeighboringCells(target.Row, target.Column);
         }
 
-        /// <summary>
-        /// Returns a list of all the neighboring cells of the selected target cell. 
-        /// Throws ArgumentNullException if the target cell is null.
-        /// Throws ArgumentException if the target cell is not 
-        /// </summary>
-        /// <param name="targetCellView">The Cell to get the neighbors of.</param>
-        /// <returns>IEnumerable of Cell</returns>
-        public IEnumerable<ICellView> GetNeighboringCellViews(ICellView targetCellView)
-        {
-            if (targetCellView == null)
-                throw new ArgumentNullException("targetCellView", "Argument is null!");
-
-            if (Cells.Contains(targetCellView) == false)
-                throw new ArgumentException("The passed ICellView is not contained in this grid!");
-
-            return GetNeighboringCells(targetCellView.Row, targetCellView.Column);
-        }
-
-        ICellView ICellViewGrid.this[int row, int column]
-        {
-            get { return this[row, column]; }
-        }
-
-        
         #endregion
 
         /// <summary>
@@ -200,7 +163,9 @@ namespace CellularAutomaton
         /// </summary>
         public override string ToString()
         {
-            return string.Format("CellularGrid with {0} rows and {1} columns.",RowsCount, ColumnsCount);
+            return string.Format("CellularGrid with {0} rows and {1} columns.", RowsCount, ColumnsCount);
         }
+
+
     }
 }

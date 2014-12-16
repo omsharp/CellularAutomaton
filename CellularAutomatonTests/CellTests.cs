@@ -163,7 +163,6 @@ namespace CellularAutomatonTests
         {
             var actual = _cell.ToString();
             Assert.IsFalse(string.IsNullOrEmpty(actual));
- 
         }
 
     }

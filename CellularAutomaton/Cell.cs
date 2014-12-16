@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CellularAutomaton
 {
     [Serializable]
-    public class Cell : ICellView
+    public class Cell : ICell
     {
         /// <summary>
         /// Fired after the cell is revived.
@@ -50,20 +51,6 @@ namespace CellularAutomaton
         /// </summary>
         public bool Alive { get; private set; }
 
-        /// <summary>
-        /// Sets or Gets the action that will be performed on this cell.
-        /// </summary>
-        public Action<Cell> ActionToDoNext { get; set; }
-
-        public void DoAction()
-        {
-            if (ActionToDoNext == null) return;
-
-            ActionToDoNext(this);
-
-            ActionToDoNext = null;
-        }
-
         private Cell(int row, int column)
         {
             Row        = row;
@@ -95,8 +82,8 @@ namespace CellularAutomaton
             if (Alive) 
                 throw new InvalidOperationException("You can't revive an Alive cell.");
 
-            Alive      = true;
-            Generation = 1;
+            Alive       = true;
+            Generation  = 1;
 
             TimesRevived++;
 
@@ -122,18 +109,28 @@ namespace CellularAutomaton
         }
 
         /// <summary>
-        /// Moves this cell to the next generation.
-        /// Throws InvalidOperationException if the cell is Inactive or Dead.
+        /// Evolves this cell a number of times.
+        /// Throws InvalidOperationException if the cell is Dead.
         /// </summary>
-        public void Evolve()
+        /// <param name="times">The number of times to evolve.</param>
+        public void Evolve(uint times)
         {
             if (!Alive)
                 throw new InvalidOperationException("You can't evolve a Dead cell.");
 
-            Generation++;
+            Generation += (int)times;
 
             if (Evolved != null)
                 Evolved(this, new EventArgs());
+        }
+       
+        /// <summary>
+        /// Evolves this cell to the next generation.
+        /// Throws InvalidOperationException if the cell is Dead.
+        /// </summary>
+        public void Evolve()
+        {
+            Evolve(1);
         }
 
         /// <summary>
@@ -141,7 +138,9 @@ namespace CellularAutomaton
         /// </summary>
         public override string ToString()
         {
-            return string.Format("[{0},{1}]", Row, Column);
+            var state = Alive ? "Alive" : "Dead";
+            
+            return string.Format("[{0},{1}] - {2} - Generation: {3}", Row, Column,state,Generation);
         }
 
     }

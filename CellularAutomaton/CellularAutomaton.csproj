@@ -41,7 +41,6 @@
   <ItemGroup>
     <Compile Include="Cell.cs" />
     <Compile Include="CellularGrid.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="ICellularGrid.cs" />
     <Compile Include="IRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

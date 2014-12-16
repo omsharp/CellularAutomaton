@@ -1,11 +1,11 @@
 ﻿
 using System;
-using System.Collections.Generic;
 
 namespace CellularAutomaton
 {
     public interface IRule
     {
-        IEnumerable<Action> Transform(ICellViewGrid grid);
+        Func<ICellState, ICellularGrid<ICellState>, bool> GetPredicate();
+        Action<Cell> GetAction();
     }
 }

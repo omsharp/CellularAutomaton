@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 
 namespace CellularAutomaton
 {
@@ -15,7 +16,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Gets a grid of all the cells in this universe.
         /// </summary>
-        public ICellGrid Grid { get; private set; }
+        public CellularGrid Grid { get; private set; }
 
         /// <summary>
         /// Gets the count of all the cycles done so far. 
@@ -28,7 +29,7 @@ namespace CellularAutomaton
         public List<IRule> Rules { get; set; }
 
 
-        private Universe(ICellGrid cellularGrid)
+        private Universe(CellularGrid cellularGrid)
         {
             Age   = 0;
             Grid  = cellularGrid;
@@ -40,7 +41,7 @@ namespace CellularAutomaton
         /// Throws ArgumentException if rowsCount or columnsCount is negative.
         /// </summary>
         /// <param name="cellularGrid">ICellularGrid object that holds the grid of cells in this universe.</param>
-        public static Universe MakeUniverse(ICellGrid cellularGrid)
+        public static Universe MakeUniverse(CellularGrid cellularGrid)
         {
             if (cellularGrid == null)
                 throw new ArgumentNullException("cellularGrid", "Argument can't be null!");
@@ -48,45 +49,28 @@ namespace CellularAutomaton
             return new Universe(cellularGrid);
         }
 
+
         private void ApplyRules()
         {
             if (Rules.Count < 1) return;
 
-            var actions = new List<Action>();
-
-            foreach (var rule in Rules)
+            var rules = Rules.Select(r =>
             {
-               actions.AddRange(rule.Transform(Grid));
-            }
+                var predicate = r.GetPredicate();
+                
+                return new {
+                             List = Grid.Cells.Where(c => predicate(c, Grid)),
+                             Action = r.GetAction()
+                           };
+            });
 
-            foreach (var action in actions)
+            foreach (var rule in rules)
             {
-                action();
+                foreach (var cell in rule.List)
+                {
+                    rule.Action(cell);
+                }
             }
-
-            ////pass a clone of Grid to each rule.
-            //var transformations = Rules.Select(rule => rule.Transform(Grid.Clone()));
-
-            //foreach (var transformation in transformations)
-            //{
-            //    var touchedCells = transformation.Cells
-            //                                     .Where(c => c.Alive != Grid[c.Row, c.Column].Alive ||
-            //                                                 c.Generation != Grid[c.Row, c.Column].Generation);
-
-            //    foreach (var touchedCell in touchedCells)
-            //    {
-            //        var originalCell = Grid[touchedCell.Row, touchedCell.Column];
-
-            //        if (touchedCell.Alive)
-            //            originalCell.Revive();
-
-            //        if (!touchedCell.Alive)
-            //            originalCell.Kill();
-
-            //        while (touchedCell.Generation > originalCell.Generation)
-            //            originalCell.Evolve();
-            //    }
-            //}
         }
 
         /// <summary>

@@ -433,42 +433,5 @@ namespace CellularAutomatonTests
             Assert.Throws<ArgumentException>(() => _grid.GetNeighboringCells(cell));
         }
 
-        [Test]
-        public void GetNeighboringCellViews_RowAndColumnArgs_ReturnsNeighbors()
-        {
-            ICellViewGrid cellViewGrid = _grid;
-            Assert.AreEqual(cellViewGrid.GetNeighboringCellViews(3,4).Count(), 8);
-        }
-        
-        [Test]
-        public void GetNeighboringCellViews_ICellViewArg_ReturnsNeighbors()
-        {
-            ICellViewGrid cellViewGrid = _grid;
-            var cellView = cellViewGrid[3, 4];
-
-            Assert.AreEqual(cellViewGrid.GetNeighboringCellViews(cellView).Count(), 8);
-        }
-
-        [Test]
-        public void ICellViewGridIndex_ValidArgs_ReturnICellView()
-        {
-            ICellViewGrid cellViewGrid = _grid;
-            var cellView = cellViewGrid[3, 4];
-
-            Assert.NotNull(cellView);
-            Assert.IsInstanceOf(typeof(ICellView), cellView);
-        }
-
-        [Test]
-        public void ICellViewGridCellViews_NotEmpty_CountNotZero()
-        {
-            ICellViewGrid cellViewGrid = _grid;
-            var expected = _grid.Cells.Count();
-
-            Assert.AreEqual(expected, cellViewGrid.CellViews.Count());
-        }
-
-    
-
     }
 }

@@ -1,42 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CellularAutomaton
 {
-    public interface ICellGrid : ICellViewGrid
+    public interface ICellularCanvas<T>
     {
-        IEnumerable<Cell> Cells { get; }
-
-        IEnumerable<Cell> GetNeighboringCells(int targetRow, int targetColumn);
-        IEnumerable<Cell> GetNeighboringCells(Cell targetCell);
-
-        new Cell this[int row, int column] { get; }
+        IEnumerable<T> Cells { get; }
+        IEnumerable<T> GetNeighboringCells(T target);
     }
 
-    public interface ICellViewGrid
+    public interface ICellularGrid<T> : ICellularCanvas<T>
     {
         int RowsCount    { get; }
         int ColumnsCount { get; }
 
-        IEnumerable<ICellView> CellViews { get; }
-
-        IEnumerable<ICellView> GetNeighboringCellViews(int targetRow, int targetColumn);
-        IEnumerable<ICellView> GetNeighboringCellViews(ICellView targetCell);
-
-        ICellView this[int row, int column] { get; }
+        T this[int row, int column] { get; }
     }
 
-    public interface ICellView
+    public interface ICellState
     {
-        event EventHandler Revived;
-        event EventHandler Killed;
-        event EventHandler Evolved;
-
         int  Row        { get; }
         int  Column     { get; }
         int  Generation { get; }
         bool Alive      { get; }
+    }
 
-        Action<Cell> ActionToDoNext { get; set; }
-    }   
+    public interface ICell : ICellState
+    {
+        void Revive();
+        void Kill();
+        void Evolve();
+        void Evolve(uint times);
+    }
+
 }
+
