@@ -6,9 +6,9 @@ namespace CellularAutomatonDemo
     {
         public bool Condition(Cell cell, CellularGrid grid)
         {
-            var neighbors = grid.CountAliveNeighbors(cell.Row, cell.Column);
+            var neighborsAlive = grid.CountAliveNeighbors(cell.Row, cell.Column);
 
-            return (cell.Alive && (neighbors < 2 || neighbors > 3));
+            return (cell.State == CellState.Alive && (neighborsAlive < 2 || neighborsAlive > 3));
         }
 
         public void Action(Cell cell)
@@ -21,9 +21,9 @@ namespace CellularAutomatonDemo
     {
         public bool Condition(Cell cell, CellularGrid grid)
         {
-            var neighbors = grid.CountAliveNeighbors(cell.Row, cell.Column);
+            var neighborsAlive = grid.CountAliveNeighbors(cell.Row, cell.Column);
 
-            return (cell.Alive && neighbors > 1 && neighbors < 4);
+            return (cell.State == CellState.Alive && neighborsAlive > 1 && neighborsAlive < 4);
         }
 
         public void Action(Cell cell)
@@ -36,9 +36,9 @@ namespace CellularAutomatonDemo
     {
         public bool Condition(Cell cell, CellularGrid grid)
         {
-            var neighbors = grid.CountAliveNeighbors(cell.Row, cell.Column);
+            var neighborsAlive = grid.CountAliveNeighbors(cell.Row, cell.Column);
 
-            return (!cell.Alive && neighbors == 3);
+            return (cell.State != CellState.Alive && neighborsAlive == 3);
         }
 
         public void Action(Cell cell)

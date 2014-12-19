@@ -2,22 +2,29 @@
 
 namespace CellularAutomaton
 {
+    public enum CellState
+    {
+        Inactive,
+        Dead,
+        Alive
+    }
+
     public class Cell
     {
         /// <summary>
         /// Fired after the cell is revived.
         /// </summary>
-        public event EventHandler Revived;
+        //public event EventHandler Revived;
 
         /// <summary>
         /// Fired after the cell is killed.
         /// </summary>
-        public event EventHandler Killed;
+        //public event EventHandler Killed;
 
         /// <summary>
         /// Fired after the cell evolves.
         /// </summary>
-        public event EventHandler Evolved;
+        //public event EventHandler Evolved;
 
         /// <summary>
         /// Gets the count of times this cell is killed.
@@ -37,7 +44,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Returns true if the cell is alive.
         /// </summary>
-        public bool Alive { get; private set; }
+        public CellState State { get; private set; }
 
         /// <summary>
         /// Returns the row in which this cell is located
@@ -54,7 +61,7 @@ namespace CellularAutomaton
         {
             Row        = row;
             Column     = column;
-            Alive      = false;
+            State      = CellState.Inactive;
             Generation = 0;
         }
 
@@ -63,15 +70,15 @@ namespace CellularAutomaton
         /// </summary>
         public void Revive()
         {
-            if (Alive)
-                throw new InvalidOperationException("You can't revive an Alive cell!");
+            if (State == CellState.Alive)
+                throw new InvalidOperationException("You can't revive an already Alive cell!");
 
-            Alive        = true;
+            State        = CellState.Alive;
             Generation   = 1;
             TimesRevived ++;
 
-            if (Revived != null)
-                Revived(this, new EventArgs());
+            //if (Revived != null)
+            //    Revived(this, new EventArgs());
         }
 
         /// <summary>
@@ -79,15 +86,18 @@ namespace CellularAutomaton
         /// </summary>
         public void Kill()
         {
-            if (!Alive)
+            if (State == CellState.Dead)
                 throw new InvalidOperationException("You can't kill a Dead cell!");
 
-            Alive       = false;
+            if (State == CellState.Inactive)
+                throw new InvalidOperationException("You can't kill an Inactive cell!");
+
+            State       = CellState.Dead;
             Generation  = 0;
             TimesKilled ++;
 
-            if (Killed != null)
-                Killed(this, new EventArgs());
+            //if (Killed != null)
+            //    Killed(this, new EventArgs());
         }
 
         /// <summary>
@@ -100,13 +110,16 @@ namespace CellularAutomaton
             if(times < 1)
                 throw new ArgumentException("Argument must be greater than 0!");
 
-            if (!Alive)
+            if (State == CellState.Dead)
                 throw new InvalidOperationException("You can't evolve a Dead cell!");
+
+            if (State == CellState.Inactive)
+                throw new InvalidOperationException("You can't evolve an Inactive cell!");
 
             Generation += times;
 
-            if (Evolved != null)
-                Evolved(this, new EventArgs());
+            //if (Evolved != null)
+            //    Evolved(this, new EventArgs());
         }
 
         /// <summary>
@@ -123,9 +136,7 @@ namespace CellularAutomaton
         /// </summary>
         public override string ToString()
         {
-            var state = Alive ? "Alive" : "Dead";
-
-            return string.Format("[{0},{1}] - {2} - Generation: {3}", Row, Column, state, Generation);
+            return string.Format("[{0},{1}] - {2} - Generation: {3}", Row, Column, State, Generation);
         }
 
         /// <summary>
@@ -136,15 +147,15 @@ namespace CellularAutomaton
             /* Simple but works. :)  */
             var clone = new Cell(Row, Column)
             {
-                Alive        = Alive,
+                State        = State,
                 Generation   = Generation,
                 TimesKilled  = TimesKilled,
                 TimesRevived = TimesRevived,
             };
 
-            clone.Killed  = Killed;
-            clone.Revived = Revived;
-            clone.Evolved = Evolved;
+            //clone.Killed  = Killed;
+            //clone.Revived = Revived;
+            //clone.Evolved = Evolved;
 
             return clone;
         }

@@ -29,7 +29,7 @@ namespace CellularAutomatonTests
         {
             _cell.Revive();
 
-            Assert.IsTrue(_cell.Alive);
+            Assert.IsTrue(_cell.State == CellState.Alive);
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace CellularAutomatonTests
             _cell.Revive();
             _cell.Kill();
 
-            Assert.IsFalse(_cell.Alive);
+            Assert.IsTrue(_cell.State == CellState.Dead);
         }
 
         [Test]
@@ -118,40 +118,40 @@ namespace CellularAutomatonTests
             Assert.AreEqual(_cell.TimesKilled, expected);
         }
 
-        [Test]
-        public void Revive_StatusNotAlive_FireRevivedEvent()
-        {
-            var fired = false;
+        //[Test]
+        //public void Revive_StatusNotAlive_FireRevivedEvent()
+        //{
+        //    var fired = false;
 
-            _cell.Revived += (sender, arg) => fired = true;
-            _cell.Revive();
+        //    _cell.Revived += (sender, arg) => fired = true;
+        //    _cell.Revive();
 
-            Assert.That(fired, Is.True.After(200));
-        }
+        //    Assert.That(fired, Is.True.After(200));
+        //}
 
-        [Test]
-        public void Kill_StatusIsNotDead_FireKilledEvent()
-        {
-            var fired = false;
+        //[Test]
+        //public void Kill_StatusIsNotDead_FireKilledEvent()
+        //{
+        //    var fired = false;
 
-            _cell.Killed += (sender, arg) => fired = true;
-            _cell.Revive();
-            _cell.Kill();
+        //    _cell.Killed += (sender, arg) => fired = true;
+        //    _cell.Revive();
+        //    _cell.Kill();
 
-            Assert.That(fired,Is.True.After(200));
-        }
+        //    Assert.That(fired,Is.True.After(200));
+        //}
 
-        [Test]
-        public void Evolve_Ok_FiredEvolvedEvent()
-        {
-            var fired = false;
+        //[Test]
+        //public void Evolve_Ok_FiredEvolvedEvent()
+        //{
+        //    var fired = false;
             
-            _cell.Evolved += (sender, arg) => fired = true;
-            _cell.Revive();
-            _cell.Evolve();
+        //    _cell.Evolved += (sender, arg) => fired = true;
+        //    _cell.Revive();
+        //    _cell.Evolve();
             
-            Assert.That(fired, Is.True.After(200));
-        }
+        //    Assert.That(fired, Is.True.After(200));
+        //}
         [Test]
         public void ToString_NormalCall_ReturnsIdBasedOnRowAndColumn()
         {
