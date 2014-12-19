@@ -1,67 +1,50 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CellularAutomaton;
-using CellularAutomaton.Core;
+using System.Linq;
 
 namespace CellularAutomatonDemo
 {
     public partial class MainForm : Form
     {
-        private const int ROWS = 50; //140;
-        private const int COLUMNS = 50; //250;
+        private const int ROWS    = 140;
+        private const int COLUMNS = 250;
 
-        private readonly Universe<SquareCell, SquareCellularGrid> _universe; 
+        private readonly CellularGrid _game;
+
+        private int maxGen;
 
         public MainForm()
         {
+            _game = new CellularGrid(ROWS, COLUMNS, new InitRule());
 
-            var initRule = Rule<SquareCell, SquareCellularGrid>.MakeRule("Init")
-                .WhenTrue((c, g) => c.Row % 2 == 0 || c.Column % 3 == 0)
-                .Do(c => c.Revive());
-                 
-            _universe = new Universe<SquareCell, SquareCellularGrid>(new SquareCellularGrid(ROWS, COLUMNS),initRule);
+            _game.Cycled += (sender, args) =>
+            {
+                
+            };
 
-            Initialize();
+            foreach (var cell in _game.Cells)
+            {
+                cell.Evolved += (sender, args) =>
+                {
+                    var c = (Cell) sender;
+                    if (c.Generation > maxGen)
+                        maxGen = c.Generation;
+                    Text = maxGen.ToString();
+                };
+
+            }
+
+            _game.Rules.Add(new GameOfLifeRule1());
+            _game.Rules.Add(new GameOfLifeRule2());
+            _game.Rules.Add(new GameOfLifeRule3());
 
             InitializeComponent();
+
+            timer.Interval = 1;
+
         }
-
-        private void Initialize()
-        {
-            var rule1 = _universe.MakeNewRule("Rule-2")
-                .WhenTrue((c, g) =>
-                {
-                    var neighbors = g.GetNeighboringCells(c).Count(n => n.Alive);
-                    return c.Alive && (neighbors < 2 || neighbors > 3);
-                })
-                .Do(c => c.Kill());
-
-            var rule2 = _universe.MakeNewRule("Rule-2")
-                .WhenTrue((c, g) =>
-                {
-                    var neighbors = g.GetNeighboringCells(c).Count(n => n.Alive);
-                    return c.Alive && neighbors > 1 && neighbors < 4;
-                })
-                .Do(c => c.Evolve());
-
-            var rule4 = _universe.MakeNewRule("Rule-3")
-                .WhenTrue((c, g) => !c.Alive && g.GetNeighboringCells(c).Count(n => n.Alive) == 3)
-                .Do(c => c.Revive());
-
-            _universe.Rules.Add(rule1);
-            _universe.Rules.Add(rule2);
-            _universe.Rules.Add(rule4);
-
-            _universe.CycleFinished += (sender, args) => Text = _universe.Age.ToString();
-        }
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -69,34 +52,58 @@ namespace CellularAutomatonDemo
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
-            var gfx = panel1.CreateGraphics();
-            var brush = new SolidBrush(Color.Red);
+            var brush = new SolidBrush(Color.Black);
 
-            foreach (var cell in _universe.Grid.Cells.Where(c => c.Alive))
+            const int offset = 4;
+
+            for (var row = 0; row < ROWS; row++)
             {
-
-                // Row and Column are inverted in respect to X and y
-                // Row is Y  ....    Column is X
-                var y = cell.Row == 0 ? 0 : cell.Row * 4;
-                var x = cell.Column == 0 ? 0 : cell.Column * 4;
-
-                var recf = new RectangleF(x, y, 4f, 4f);
-
-                gfx.FillRectangle(brush, recf);
+                for (var col = 0; col < COLUMNS; col++)
+                {
+                    brush.Color = _game.Cells[row, col].Alive ? Color.Green : Color.Tan;
+                    
+                    e.Graphics.FillRectangle(brush, 
+                                             offset * col, 
+                                             offset * row, 
+                                             offset - 1, 
+                                             offset - 1);
+                }
             }
-
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
-
-            _universe.NextCycle();
+            //  _grid.NextGeneration();
+            _game.NextCycle();
             panel1.Refresh();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        
+        private void panel1_Click(object sender, EventArgs e)
         {
-            
+            timer.Enabled = true;
         }
     }
+
+    public class InitRule : IRule
+    {
+
+        public bool Condition(Cell cell, CellularGrid grid)
+        {
+          //  return (cell.Row%4 == 0 || cell.Column%9 == 0 || cell.Row*cell.Column%3 == 0);
+
+           return (cell.Row % 2 == 0 || cell.Column % 3 == 0);
+
+          //  return !cell.Alive;
+
+            return (cell.Column % 8 == 0 || cell.Row % 8 == 0);
+        }
+
+        public void Action(Cell cell)
+        {
+            cell.Revive();
+        }
+    }
+
+
 }

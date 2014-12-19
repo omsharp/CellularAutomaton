@@ -7,7 +7,7 @@ namespace CellularAutomatonTests
     [TestFixture]
     public class CellTests
     {
-        private SquareCell _cell;
+        private Cell _cell;
 
         private const int ROW    = 2;
         private const int COLUMN = 4;
@@ -15,7 +15,7 @@ namespace CellularAutomatonTests
         [SetUp]
         public void Setup()
         {
-            _cell = new SquareCell(ROW, COLUMN);
+            _cell = new Cell(ROW, COLUMN);
         }
 
         [Test]

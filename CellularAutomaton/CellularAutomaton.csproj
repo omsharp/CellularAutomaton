@@ -39,13 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Cell.cs" />
-    <Compile Include="SquareCell.cs" />
-    <Compile Include="SquareCellularGrid.cs" />
-    <Compile Include="Core\ICellularContainer.cs" />
-    <Compile Include="Core\IRule.cs" />
+    <Compile Include="Cell.cs" />
+    <Compile Include="CellularGrid.cs" />
+    <Compile Include="IRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\Universe.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
