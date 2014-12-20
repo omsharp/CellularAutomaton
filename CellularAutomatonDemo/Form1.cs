@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using CellularAutomaton;
@@ -8,125 +9,246 @@ namespace CellularAutomatonDemo
 {
     public partial class MainForm : Form
     {
-        private const int ROWS = 60;//200;
-        private const int COLUMNS = 60;//200;
+        private int _offset;
+        private int _rows;
+        private int _cols;
+        private int _elapsedSeconds;
 
-        int offset = 10;
-        int rows = 0;
-        int cols = 0;
-
-
-        private readonly CellularGrid _game;
-
+        private CellularGrid _grid;
+        private IRule _initRule;
 
         public MainForm()
         {
-          
+
             InitializeComponent();
+        }
 
+        private void PopulateInitialRulesCombo()
+        {
+            initialRuleCombo.Items.Add(new DiagonalLinesInitialRule());
+            initialRuleCombo.Items.Add(new AllDeadInitialRule());
+            initialRuleCombo.Items.Add(new AllAliveInitialRule());
+            initialRuleCombo.Items.Add(new CrossInitialRule());
+            initialRuleCombo.Items.Add(new DiagonaCrosslsInitialRule());
+            initialRuleCombo.Items.Add(new AlternateRowsGridInitialRule());
+            initialRuleCombo.Items.Add(new SingleGliderInitialRule());
+            initialRuleCombo.Items.Add(new TightGridInitialRule());
+            initialRuleCombo.Items.Add(new WideGridInitialRule());
 
-           rows = panel1.Height / offset;
-            cols = panel1.Width / offset;
+            initialRuleCombo.SelectedIndex = 0;
+        }
 
+        private void GetSize()
+        {
+            _offset = sizeBar.Value;
+            _rows   = canvas.Height / _offset;
+            _cols   = canvas.Width / _offset;
 
+            sizeLbl.Text = string.Format("{0} x {1}", _rows, _cols);
+        }
 
-            _game = new CellularGrid(rows, cols, new InitRule());
+        private void MakeNewGrid()
+        {
+            GetSize();
+            GetSpeed();
 
-            _game.Cycled += (sender, args) =>
+            _grid = new CellularGrid(_rows,_cols,_initRule);
+           
+            _grid.WrapBorders = borderCheck.Checked;
+            _grid.Cycled += _grid_Cycled;
+
+            AddGameOfLifeRules();
+
+            canvas.Refresh();
+        }
+
+        private void GetSpeed()
+        {
+            timer.Interval = speedBar.Value;
+            intervalLbl.Text = string.Format("Cycle Interval = Cycle / {0} Milliseconds", timer.Interval);
+        }
+
+        private void AddGameOfLifeRules()
+        {
+            _grid.Rules.Add(new GameOfLifeRule1());
+            _grid.Rules.Add(new GameOfLifeRule2());
+            _grid.Rules.Add(new GameOfLifeRule3());
+
+            rulesCheckBox.Items.Clear();
+
+            foreach (var rule in _grid.Rules)
             {
-                // Text = _game.Survivor.ToString();
-            };
-
-            _game.Rules.Add(new GameOfLifeRule1());
-            _game.Rules.Add(new GameOfLifeRule2());
-            _game.Rules.Add(new GameOfLifeRule3());
-
-            _game.Borderless = true;
-
-            timer.Interval = 1;
-
+                rulesCheckBox.Items.Add(rule);
+            }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void DrawGrid(PaintEventArgs e)
         {
-        }
+            canvas.BackColor = linesColorLbl.BackColor;
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
             var brush = new SolidBrush(Color.Black);
 
-          //  const int offset = 10;
-
-            for (var row = 0; row < rows; row++)
+            for (var row = 0; row < _rows; row++)
             {
-                for (var col = 0; col < cols; col++)
+                for (var col = 0; col < _cols; col++)
                 {
-                    if (_game.Cells[row, col].State == CellState.Alive) 
-                        brush.Color = Color.Green;
-                    else if (_game.Cells[row, col].State == CellState.Inactive)
-                        brush.Color = Color.Tan;
-                    else
-                        brush.Color = Color.Khaki;
+                    switch (_grid.Cells[row, col].State)
+                    {
+                        case CellState.Alive:
+                            brush.Color = aliveColorLbl.BackColor;
+                            break;
+                        case CellState.Inactive:
+                            brush.Color = emptyColorLbl.BackColor;
+                            break;
+                        default:
+                            brush.Color = deadColorLbl.BackColor;
+                            break;
+                    }
 
-                    e.Graphics.FillRectangle(brush, 
-                                             offset * col, 
-                                             offset * row, 
-                                             offset - 1, 
-                                             offset - 1);
+                    e.Graphics.FillRectangle(brush,
+                        _offset*col,
+                        _offset*row,
+                        _offset - 1,
+                        _offset - 1);
                 }
             }
         }
 
+        private void _grid_Cycled(object sender, EventArgs e)
+        {
+            cyclesTxt.Text     = _grid.Age.ToString();
+            populationTxt.Text = _grid.AliveCount.ToString();
+            survivorsTxt.Text  = _grid.LastCycleSurvivors.ToString();
+            newbornsTxt.Text   = _grid.LastCycleNewBorns.ToString();
+            deathsTxt.Text     = _grid.LastCycleDeaths.ToString();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            PopulateInitialRulesCombo();
+            MakeNewGrid();
+        }
+
+        private void sizeBar_Scroll(object sender, EventArgs e)
+        {
+            GetSize();
+            MakeNewGrid();
+        }
+
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            timer.Enabled            = true;
+            elapsedTimer.Enabled = true;
+            sizeBar.Enabled          = false;
+            initialRuleCombo.Enabled = false;
+            pauseButton.Enabled      = true;
+            startButton.Enabled      = false;
+
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e)
+        {
+            if (timer.Enabled)
+            {
+                timer.Enabled = false;
+                elapsedTimer.Enabled = false;
+                pauseButton.Text = "Resume";
+            }
+            else
+            {
+                timer.Enabled = true;
+                elapsedTimer.Enabled = true;
+                pauseButton.Text = "Pause";
+            }
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            initialRuleCombo.Enabled = true;
+            sizeBar.Enabled          = true;
+            timer.Enabled            = false;
+            elapsedTimer.Enabled     = false;
+            startButton.Enabled      = true;
+            pauseButton.Enabled      = false;
+
+            elapsedTxt.Text    = "";
+            cyclesTxt.Text     = "";
+            populationTxt.Text = "";
+            survivorsTxt.Text  = "";
+            newbornsTxt.Text   = "";
+            deathsTxt.Text     = "";
+
+            MakeNewGrid();
+        }
+
+        private void speedBar_Scroll(object sender, EventArgs e)
+        {
+            GetSpeed();
+        }
+
+        private void borderCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            _grid.WrapBorders = borderCheck.Checked;
+        }
+
+        private void initialRuleCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _initRule = initialRuleCombo.SelectedItem as IRule;
+            MakeNewGrid();
+        }
+
+        private void canvas_Paint(object sender, PaintEventArgs e)
+        {
+            DrawGrid(e);
+        }
+
         private void timer_Tick(object sender, EventArgs e)
         {
-            //  _grid.NextGeneration();
-            _game.NextCycle();
-            panel1.Refresh();
+            _grid.NextCycle();
+            canvas.Refresh();
         }
 
-        
-        private void panel1_Click(object sender, EventArgs e)
+        private void elapsedTimer_Tick(object sender, EventArgs e)
         {
-          //  _game.NextCycle();
-            timer.Enabled = true;
+            _elapsedSeconds++;
+            elapsedTxt.Text = _elapsedSeconds.ToString();
         }
-    }
 
-    public class InitRule : IRule
-    {
-
-        public bool Condition(Cell cell, CellularGrid grid)
+        private void ColorHandler(object sender, EventArgs e)
         {
-          //return (cell.Row%4 == 0 || cell.Column%9 == 0 || cell.Row*cell.Column%3 == 0);
-
-            var count = grid.RowsCount ;
-
-            var row = cell.Row;
-            var col = cell.Column;
-
-            return (row == 0 && col == 2) || (row == 1 && col == 3) || (row == 2 && (col == 1 || col == 2 || col == 3));
+            if(colorDialog.ShowDialog() == DialogResult.Cancel)
+                return;
             
-            return cell.Column == count - 1 && cell.Row > 10 && cell.Row < 100;// grid.ColumnsCount / 2 || cell.Row == grid.RowsCount / 2;
-
-            return (cell.Row == cell.Column) || (cell.Row + cell.Column == count - 1);
-
-
-            return (cell.Row % 9 == 0 ||  cell.Row * cell.Column % 3 == 0);
-
-
-
-         return (cell.Row % 2 == 0 || cell.Column % 3 == 0);
-
-          // return !cell.Alive;
-
-            return (cell.Column % 8 == 0 || cell.Row % 8 == 0);
+            ((Label)sender).BackColor = colorDialog.Color;
+            canvas.Refresh();
         }
 
-        public void Action(Cell cell)
+        private void MouseMoveAndMouseDownHandler(object sender, MouseEventArgs e)
         {
-            cell.Revive();
+            var col = e.X / _offset;
+            var row = e.Y / _offset;
+
+            if ((col >= 0 && col < _grid.ColumnsCount) && (row >= 0 && row < _grid.RowsCount))
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (_grid.Cells[row, col].State != CellState.Alive)
+                        _grid.Cells[row, col].Revive();
+
+                    canvas.Refresh();
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+
+                    if (_grid.Cells[row, col].State == CellState.Alive)
+                        _grid.Cells[row, col].Kill();
+
+                    canvas.Refresh();
+                }
+            }   
         }
     }
 
+   
 
 }

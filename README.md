@@ -1,8 +1,6 @@
 Cellular Automaton
 ==================
 
-This is an implementation of a composable Cellular Automaton system.
-
-Still on initial work. Will update this read me with more details soon.....
+An implementation of a Cellular Automaton, with a Conway's Game of Life demo.
 
 

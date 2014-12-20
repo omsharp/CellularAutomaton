@@ -60,7 +60,7 @@ namespace CellularAutomaton
         /// <summary>
         /// Determines if the cells can go around the borders for neighbors.
         /// </summary>
-        public bool Borderless { get; set; }
+        public bool WrapBorders { get; set; }
 
         /// <summary>
         /// Constructor.... Pass null if you don't want to use initial rule (grid without initial rule will be all dead cells).
@@ -284,15 +284,15 @@ namespace CellularAutomaton
                 return value;
 
             //if value is less than 0 and Borderless is true, then return last.
-            if (value < 0 && Borderless)
+            if (value < 0 && WrapBorders)
                 return last;
 
             //if value is greater than last then return 0 (return the first). 
-            if (value > last && Borderless)
+            if (value > last && WrapBorders)
                 return 0;
 
             //if the value is less than 0 and Borderless is false, then return -1.
-            if(value < 0 && !Borderless)
+            if(value < 0 && !WrapBorders)
                 return -1;
 
             //if value is greater than last and Borderless is false then return -1.            

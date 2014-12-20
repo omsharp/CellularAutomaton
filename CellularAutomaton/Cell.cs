@@ -12,31 +12,6 @@ namespace CellularAutomaton
     public class Cell
     {
         /// <summary>
-        /// Fired after the cell is revived.
-        /// </summary>
-        //public event EventHandler Revived;
-
-        /// <summary>
-        /// Fired after the cell is killed.
-        /// </summary>
-        //public event EventHandler Killed;
-
-        /// <summary>
-        /// Fired after the cell evolves.
-        /// </summary>
-        //public event EventHandler Evolved;
-
-        /// <summary>
-        /// Gets the count of times this cell is killed.
-        /// </summary>
-        public int TimesKilled { get; private set; }
-
-        /// <summary>
-        /// Gets the count of times this cell is revived.
-        /// </summary>
-        public int TimesRevived { get; private set; }
-
-        /// <summary>
         /// Gets the current generation of this cell.
         /// </summary>
         public int Generation { get; private set; }
@@ -75,10 +50,6 @@ namespace CellularAutomaton
 
             State        = CellState.Alive;
             Generation   = 1;
-            TimesRevived ++;
-
-            //if (Revived != null)
-            //    Revived(this, new EventArgs());
         }
 
         /// <summary>
@@ -94,10 +65,6 @@ namespace CellularAutomaton
 
             State       = CellState.Dead;
             Generation  = 0;
-            TimesKilled ++;
-
-            //if (Killed != null)
-            //    Killed(this, new EventArgs());
         }
 
         /// <summary>
@@ -117,9 +84,6 @@ namespace CellularAutomaton
                 throw new InvalidOperationException("You can't evolve an Inactive cell!");
 
             Generation += times;
-
-            //if (Evolved != null)
-            //    Evolved(this, new EventArgs());
         }
 
         /// <summary>
@@ -149,13 +113,7 @@ namespace CellularAutomaton
             {
                 State        = State,
                 Generation   = Generation,
-                TimesKilled  = TimesKilled,
-                TimesRevived = TimesRevived,
             };
-
-            //clone.Killed  = Killed;
-            //clone.Revived = Revived;
-            //clone.Evolved = Evolved;
 
             return clone;
         }

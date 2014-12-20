@@ -15,6 +15,11 @@ namespace CellularAutomatonDemo
         {
             cell.Kill();
         }
+
+        public override string ToString()
+        {
+            return "Alive - N < 2  |  N > 3  -> Kill";
+        }
     }
 
     class GameOfLifeRule2 : IRule
@@ -30,6 +35,11 @@ namespace CellularAutomatonDemo
         {
             cell.Evolve();
         }
+
+        public override string ToString()
+        {
+            return "Alive - N > 1  &  N < 4  -> Evolve";
+        }
     }
 
     class GameOfLifeRule3 : IRule
@@ -44,6 +54,11 @@ namespace CellularAutomatonDemo
         public void Action(Cell cell)
         {
             cell.Revive();
+        }
+
+        public override string ToString()
+        {
+            return "Dead - N == 3 -> Revive";
         }
     }
 }
