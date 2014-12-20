@@ -44,7 +44,7 @@ namespace CellularAutomatonDemo
             _rows   = canvas.Height / _offset;
             _cols   = canvas.Width / _offset;
 
-            sizeLbl.Text = string.Format("{0} x {1}", _rows, _cols);
+            sizeLbl.Text = string.Format("Cell Size = {0} | Grid Size = {1} x {2}",_offset, _rows, _cols);
         }
 
         private void MakeNewGrid()
@@ -73,16 +73,9 @@ namespace CellularAutomatonDemo
             _grid.Rules.Add(new GameOfLifeRule1());
             _grid.Rules.Add(new GameOfLifeRule2());
             _grid.Rules.Add(new GameOfLifeRule3());
-
-            rulesCheckBox.Items.Clear();
-
-            foreach (var rule in _grid.Rules)
-            {
-                rulesCheckBox.Items.Add(rule);
-            }
         }
 
-        private void DrawGrid(PaintEventArgs e)
+        private void DrawGrid(Graphics g)
         {
             canvas.BackColor = linesColorLbl.BackColor;
 
@@ -105,11 +98,40 @@ namespace CellularAutomatonDemo
                             break;
                     }
 
-                    e.Graphics.FillRectangle(brush,
-                        _offset*col,
-                        _offset*row,
-                        _offset - 1,
-                        _offset - 1);
+                    var x = col * _offset;
+                    var y = row * _offset;
+
+                    if (shapeRecRadio.Checked)
+                    {
+                        g.FillRectangle(brush,
+                                        _offset * col,
+                                        _offset * row,
+                                        _offset - 1,
+                                        _offset - 1);
+                    } 
+                    else if (shapeCircRadio.Checked)
+                    {
+                        g.FillEllipse(brush,
+                                      _offset * col,
+                                      _offset * row,
+                                      _offset - 1,
+                                      _offset - 1);
+                    }
+                    else
+                    {
+                        var headPointX = x + _offset / 2;
+                        var basePointY = y + _offset;
+                        var basePointX = x + _offset - 1;
+
+                        var triPoints = new PointF[3];
+
+                        triPoints[0] = new PointF(headPointX, y + 1);      //head point
+                        triPoints[1] = new PointF(x + 1, basePointY);      //left base point
+                        triPoints[2] = new PointF(basePointX, basePointY); //right base point
+
+                        g.FillPolygon(brush, triPoints);
+                    }
+
                 }
             }
         }
@@ -199,7 +221,7 @@ namespace CellularAutomatonDemo
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
-            DrawGrid(e);
+            DrawGrid(e.Graphics);
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -241,11 +263,16 @@ namespace CellularAutomatonDemo
                 {
 
                     if (_grid.Cells[row, col].State == CellState.Alive)
-                        _grid.Cells[row, col].Kill();
+                        _grid.Cells[row, col] = new Cell(row,col);
 
                     canvas.Refresh();
                 }
-            }   
+            }
+        }
+
+        private void shapeCircRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            canvas.Refresh();
         }
     }
 

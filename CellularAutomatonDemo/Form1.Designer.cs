@@ -66,9 +66,11 @@
             this.label18 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.rulesCheckBox = new System.Windows.Forms.CheckedListBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.elapsedTimer = new System.Windows.Forms.Timer(this.components);
+            this.shapeRecRadio = new System.Windows.Forms.RadioButton();
+            this.shapeCircRadio = new System.Windows.Forms.RadioButton();
+            this.shapeTriRadio = new System.Windows.Forms.RadioButton();
             this.canvas = new CellularAutomatonDemo.MyPanel();
             ((System.ComponentModel.ISupportInitialize)(this.sizeBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.speedBar)).BeginInit();
@@ -88,7 +90,7 @@
             // 
             this.sizeBar.LargeChange = 1;
             this.sizeBar.Location = new System.Drawing.Point(1, 106);
-            this.sizeBar.Maximum = 20;
+            this.sizeBar.Maximum = 300;
             this.sizeBar.Minimum = 4;
             this.sizeBar.Name = "sizeBar";
             this.sizeBar.Size = new System.Drawing.Size(365, 45);
@@ -242,7 +244,7 @@
             this.groupBox1.ForeColor = System.Drawing.Color.Black;
             this.groupBox1.Location = new System.Drawing.Point(682, 523);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(140, 145);
+            this.groupBox1.Size = new System.Drawing.Size(152, 145);
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Colors";
@@ -262,9 +264,9 @@
             this.label14.Font = new System.Drawing.Font("Tahoma", 10F);
             this.label14.Location = new System.Drawing.Point(56, 115);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(77, 18);
+            this.label14.Size = new System.Drawing.Size(90, 18);
             this.label14.TabIndex = 18;
-            this.label14.Text = "Grid Lines";
+            this.label14.Text = "Background";
             this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // initialRuleCombo
@@ -476,31 +478,58 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Initial Setup";
             // 
-            // rulesCheckBox
-            // 
-            this.rulesCheckBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rulesCheckBox.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.rulesCheckBox.FormattingEnabled = true;
-            this.rulesCheckBox.Location = new System.Drawing.Point(5, 19);
-            this.rulesCheckBox.Name = "rulesCheckBox";
-            this.rulesCheckBox.Size = new System.Drawing.Size(214, 122);
-            this.rulesCheckBox.TabIndex = 33;
-            // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.rulesCheckBox);
+            this.groupBox5.Controls.Add(this.shapeTriRadio);
+            this.groupBox5.Controls.Add(this.shapeCircRadio);
+            this.groupBox5.Controls.Add(this.shapeRecRadio);
             this.groupBox5.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.groupBox5.Location = new System.Drawing.Point(828, 523);
+            this.groupBox5.Location = new System.Drawing.Point(840, 523);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(224, 145);
+            this.groupBox5.Size = new System.Drawing.Size(212, 145);
             this.groupBox5.TabIndex = 33;
             this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Rules";
+            this.groupBox5.Text = "Cell Shape";
             // 
             // elapsedTimer
             // 
             this.elapsedTimer.Interval = 1000;
             this.elapsedTimer.Tick += new System.EventHandler(this.elapsedTimer_Tick);
+            // 
+            // shapeRecRadio
+            // 
+            this.shapeRecRadio.AutoSize = true;
+            this.shapeRecRadio.Checked = true;
+            this.shapeRecRadio.Location = new System.Drawing.Point(66, 43);
+            this.shapeRecRadio.Name = "shapeRecRadio";
+            this.shapeRecRadio.Size = new System.Drawing.Size(86, 21);
+            this.shapeRecRadio.TabIndex = 0;
+            this.shapeRecRadio.TabStop = true;
+            this.shapeRecRadio.Text = "Rectangle";
+            this.shapeRecRadio.UseVisualStyleBackColor = true;
+            this.shapeRecRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
+            // 
+            // shapeCircRadio
+            // 
+            this.shapeCircRadio.AutoSize = true;
+            this.shapeCircRadio.Location = new System.Drawing.Point(66, 72);
+            this.shapeCircRadio.Name = "shapeCircRadio";
+            this.shapeCircRadio.Size = new System.Drawing.Size(58, 21);
+            this.shapeCircRadio.TabIndex = 1;
+            this.shapeCircRadio.Text = "Circle";
+            this.shapeCircRadio.UseVisualStyleBackColor = true;
+            this.shapeCircRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
+            // 
+            // shapeTriRadio
+            // 
+            this.shapeTriRadio.AutoSize = true;
+            this.shapeTriRadio.Location = new System.Drawing.Point(66, 101);
+            this.shapeTriRadio.Name = "shapeTriRadio";
+            this.shapeTriRadio.Size = new System.Drawing.Size(73, 21);
+            this.shapeTriRadio.TabIndex = 2;
+            this.shapeTriRadio.Text = "Triangle";
+            this.shapeTriRadio.UseVisualStyleBackColor = true;
+            this.shapeTriRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
             // 
             // canvas
             // 
@@ -550,6 +579,7 @@
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -593,11 +623,13 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.CheckedListBox rulesCheckBox;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label linesColorLbl;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Timer elapsedTimer;
+        private System.Windows.Forms.RadioButton shapeTriRadio;
+        private System.Windows.Forms.RadioButton shapeCircRadio;
+        private System.Windows.Forms.RadioButton shapeRecRadio;
     }
 }
 
