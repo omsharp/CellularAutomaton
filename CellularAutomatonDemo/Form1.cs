@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using CellularAutomaton;
 using System.Linq;
@@ -111,11 +112,12 @@ namespace CellularAutomatonDemo
                     } 
                     else if (shapeCircRadio.Checked)
                     {
-                        g.FillEllipse(brush,
-                                      _offset * col,
-                                      _offset * row,
-                                      _offset - 1,
-                                      _offset - 1);
+                            g.FillEllipse(brush,
+                                          _offset * col,
+                                          _offset * row,
+                                          _offset - 1,
+                                          _offset - 1);
+
                     }
                     else
                     {
