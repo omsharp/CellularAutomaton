@@ -18,7 +18,7 @@ namespace CellularAutomatonDemo
 
         public override string ToString()
         {
-            return "Alive - N < 2  |  N > 3  -> Kill";
+            return "Alive : N < 2  ||  N > 3  -> Kill";
         }
     }
 
@@ -38,7 +38,7 @@ namespace CellularAutomatonDemo
 
         public override string ToString()
         {
-            return "Alive - N > 1  &  N < 4  -> Evolve";
+            return "Alive : N > 1  &&  N < 4  -> Evolve";
         }
     }
 
@@ -58,7 +58,7 @@ namespace CellularAutomatonDemo
 
         public override string ToString()
         {
-            return "Dead - N == 3 -> Revive";
+            return "Dead : N == 3 -> Revive";
         }
     }
 }

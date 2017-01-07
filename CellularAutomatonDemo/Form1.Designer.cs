@@ -84,7 +84,7 @@
             // timer
             // 
             this.timer.Interval = 1;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
+            this.timer.Tick += new System.EventHandler(this.Timer_Tick);
             // 
             // sizeBar
             // 
@@ -97,7 +97,7 @@
             this.sizeBar.TabIndex = 1;
             this.sizeBar.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
             this.sizeBar.Value = 4;
-            this.sizeBar.Scroll += new System.EventHandler(this.sizeBar_Scroll);
+            this.sizeBar.Scroll += new System.EventHandler(this.SizeBar_Scroll);
             // 
             // startButton
             // 
@@ -109,7 +109,7 @@
             this.startButton.TabIndex = 2;
             this.startButton.Text = "Start";
             this.startButton.UseVisualStyleBackColor = true;
-            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+            this.startButton.Click += new System.EventHandler(this.StartButton_Click);
             // 
             // pauseButton
             // 
@@ -122,7 +122,7 @@
             this.pauseButton.TabIndex = 3;
             this.pauseButton.Text = "Pause";
             this.pauseButton.UseVisualStyleBackColor = true;
-            this.pauseButton.Click += new System.EventHandler(this.pauseButton_Click);
+            this.pauseButton.Click += new System.EventHandler(this.PauseButton_Click);
             // 
             // resetButton
             // 
@@ -134,7 +134,7 @@
             this.resetButton.TabIndex = 4;
             this.resetButton.Text = "Reset";
             this.resetButton.UseVisualStyleBackColor = true;
-            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
+            this.resetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
             // label1
             // 
@@ -157,7 +157,7 @@
             this.speedBar.TabIndex = 9;
             this.speedBar.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
             this.speedBar.Value = 1;
-            this.speedBar.Scroll += new System.EventHandler(this.speedBar_Scroll);
+            this.speedBar.Scroll += new System.EventHandler(this.SpeedBar_Scroll);
             // 
             // intervalLbl
             // 
@@ -278,7 +278,7 @@
             this.initialRuleCombo.Name = "initialRuleCombo";
             this.initialRuleCombo.Size = new System.Drawing.Size(357, 24);
             this.initialRuleCombo.TabIndex = 18;
-            this.initialRuleCombo.SelectedIndexChanged += new System.EventHandler(this.initialRuleCombo_SelectedIndexChanged);
+            this.initialRuleCombo.SelectedIndexChanged += new System.EventHandler(this.InitialRuleCombo_SelectedIndexChanged);
             // 
             // label9
             // 
@@ -299,7 +299,7 @@
             this.borderCheck.TabIndex = 20;
             this.borderCheck.Text = "Wrap Borders";
             this.borderCheck.UseVisualStyleBackColor = true;
-            this.borderCheck.CheckedChanged += new System.EventHandler(this.borderCheck_CheckedChanged);
+            this.borderCheck.CheckedChanged += new System.EventHandler(this.BorderCheck_CheckedChanged);
             // 
             // groupBox2
             // 
@@ -494,7 +494,7 @@
             // elapsedTimer
             // 
             this.elapsedTimer.Interval = 1000;
-            this.elapsedTimer.Tick += new System.EventHandler(this.elapsedTimer_Tick);
+            this.elapsedTimer.Tick += new System.EventHandler(this.ElapsedTimer_Tick);
             // 
             // shapeRecRadio
             // 
@@ -507,7 +507,7 @@
             this.shapeRecRadio.TabStop = true;
             this.shapeRecRadio.Text = "Rectangle";
             this.shapeRecRadio.UseVisualStyleBackColor = true;
-            this.shapeRecRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
+            this.shapeRecRadio.CheckedChanged += new System.EventHandler(this.CellShapeRadio_CheckedChanged);
             // 
             // shapeCircRadio
             // 
@@ -518,7 +518,7 @@
             this.shapeCircRadio.TabIndex = 1;
             this.shapeCircRadio.Text = "Circle";
             this.shapeCircRadio.UseVisualStyleBackColor = true;
-            this.shapeCircRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
+            this.shapeCircRadio.CheckedChanged += new System.EventHandler(this.CellShapeRadio_CheckedChanged);
             // 
             // shapeTriRadio
             // 
@@ -529,7 +529,7 @@
             this.shapeTriRadio.TabIndex = 2;
             this.shapeTriRadio.Text = "Triangle";
             this.shapeTriRadio.UseVisualStyleBackColor = true;
-            this.shapeTriRadio.CheckedChanged += new System.EventHandler(this.shapeCircRadio_CheckedChanged);
+            this.shapeTriRadio.CheckedChanged += new System.EventHandler(this.CellShapeRadio_CheckedChanged);
             // 
             // canvas
             // 
@@ -539,7 +539,7 @@
             this.canvas.Name = "canvas";
             this.canvas.Size = new System.Drawing.Size(676, 676);
             this.canvas.TabIndex = 0;
-            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
+            this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.Canvas_Paint);
             this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MouseMoveAndMouseDownHandler);
             this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseMoveAndMouseDownHandler);
             // 

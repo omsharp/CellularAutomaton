@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CellularAutomaton
 {
-    public class CellularGrid 
+    public class CellularGrid
     {
         /// <summary>
         /// Fired after the NextCycle method finishes.
@@ -70,9 +70,9 @@ namespace CellularAutomaton
             if (rowsCount < 1 || columnsCount < 1)
                 throw new ArgumentException("You can't use less that 1 for rows or columns count.");
 
-            RowsCount    = rowsCount;
+            RowsCount = rowsCount;
             ColumnsCount = columnsCount;
-            Rules        = new List<IRule>();
+            Rules = new List<IRule>();
 
             if (initialRule == null)
                 InitializeCells();
@@ -80,7 +80,7 @@ namespace CellularAutomaton
                 InitializeCells(initialRule);
         }
 
-        
+
         /// <summary>
         /// Initializes the cells array according to the passed rule
         /// </summary>
@@ -126,10 +126,7 @@ namespace CellularAutomaton
         /// </summary>
         public void NextCycle()
         {
-            AliveCount         = 0;
-            LastCycleDeaths    = 0;
-            LastCycleNewBorns  = 0;
-            LastCycleSurvivors = 0;
+            ResetCounts();
 
             var updatedCells = new Cell[RowsCount, ColumnsCount];
 
@@ -140,41 +137,48 @@ namespace CellularAutomaton
                     var oldCell = Cells[row, col].Clone();
                     var newCell = oldCell.Clone();
 
-                    foreach (var rule in Rules.Where(rule => rule.Condition(oldCell, this)))
-                    {
-                        rule.Action(newCell);
-                    }
-
-                    if (newCell.State == CellState.Alive)
-                    {
-                        AliveCount++;
-
-                        if (oldCell.State != CellState.Alive)
-                        {
-                            LastCycleNewBorns++;
-                        }
-                        else if (oldCell.State == CellState.Alive)
-                        {
-                            LastCycleSurvivors++;
-                        }
-                    }
-                    else if (newCell.State == CellState.Dead && oldCell.State == CellState.Alive)
-                    {
-                        LastCycleDeaths++;
-                    }
-
+                    ApplyRules(oldCell, newCell);
+                    UpdateCounters(newCell.State, oldCell.State);
                     updatedCells[row, col] = newCell;
                 });
             });
 
             Cells = updatedCells;
-
             Age++;
-
-            if (Cycled != null)
-                Cycled(this, new EventArgs());
+            Cycled?.Invoke(this, new EventArgs());
         }
-        
+
+        private void ResetCounts()
+        {
+            AliveCount = 0;
+            LastCycleDeaths = 0;
+            LastCycleNewBorns = 0;
+            LastCycleSurvivors = 0;
+        }
+
+        private void ApplyRules(Cell oldCell, Cell newCell)
+        {
+            foreach (var rule in Rules.Where(rule => rule.Condition(oldCell, this)))
+                rule.Action(newCell);
+        }
+
+        private void UpdateCounters(CellState newCellState, CellState oldCellState)
+        {
+            if (newCellState == CellState.Alive)
+            {
+                AliveCount++;
+
+                if (oldCellState != CellState.Alive)
+                    LastCycleNewBorns++;
+                else if (oldCellState == CellState.Alive)
+                    LastCycleSurvivors++;
+            }
+            else if (newCellState == CellState.Dead && oldCellState == CellState.Alive)
+            {
+                LastCycleDeaths++;
+            }
+        }
+
         /// <summary>
         /// Returns a list of all the neighboring cells of the selected target cell. 
         /// Throws ArgumentOutOfRangeException if one of the arguments is out of range.
@@ -184,16 +188,10 @@ namespace CellularAutomaton
         /// <returns>IEnumerable of Cell</returns>
         public Cell[] GetNeighboringCells(int targetRow, int targetCol)
         {
-            if (targetRow < 0 || targetRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetRow",
-                                                      "Target row was outside the bounds of this grid.");
+            GaurdRowAndColumnLimits(targetRow, targetCol);
 
-            if (targetCol < 0 || targetCol >= ColumnsCount)
-                throw new ArgumentOutOfRangeException("targetCol",
-                                                      "Target column was outside the bounds of this grid.");
-
+            //todo: revise this algorithm
             var list = new List<Cell>();
-
             var rows = new[] { targetRow - 1, targetRow, targetRow + 1 };
             var cols = new[] { targetCol - 1, targetCol, targetCol + 1 };
 
@@ -231,13 +229,9 @@ namespace CellularAutomaton
         /// <param name="targetCol">The column of the target location.</param>
         public int CountAliveNeighbors(int targetRow, int targetCol)
         {
-            if (targetRow < 0 || targetRow >= RowsCount)
-                throw new ArgumentOutOfRangeException("targetRow",
-                                                      "Target row was outside the bounds of this grid.");
-
-            if (targetCol < 0 || targetCol >= ColumnsCount)
-                throw new ArgumentOutOfRangeException("targetCol",
-                                                      "Target column was outside the bounds of this grid.");
+            GaurdRowAndColumnLimits(targetRow, targetCol);
+            
+            //todo: revise this algorithm
 
             var count = 0;
 
@@ -270,6 +264,17 @@ namespace CellularAutomaton
             return count;
         }
 
+        private void GaurdRowAndColumnLimits(int targetRow, int targetCol)
+        {
+            if (targetRow < 0 || targetRow >= RowsCount)
+                throw new ArgumentOutOfRangeException(nameof(targetRow),
+                    "Target row was outside the bounds of this grid.");
+
+            if (targetCol < 0 || targetCol >= ColumnsCount)
+                throw new ArgumentOutOfRangeException(nameof(targetCol),
+                    "Target column was outside the bounds of this grid.");
+        }
+
         /// <summary>
         /// If the value is within the bounds of this grid then the value itself is returnd.
         /// If the value is out of bounds and Borderless is set to true then the value is rounded around the edge.
@@ -291,8 +296,8 @@ namespace CellularAutomaton
             if (value > last && WrapBorders)
                 return 0;
 
-            //if the value is less than 0 and Borderless is false, then return -1.
-            if(value < 0 && !WrapBorders)
+            // if the value is less than 0 and Borderless is false, then return -1.
+            if (value < 0 && !WrapBorders)
                 return -1;
 
             //if value is greater than last and Borderless is false then return -1.            
@@ -304,10 +309,6 @@ namespace CellularAutomaton
         /// Returns a string identifier of this CellularGrid.
         /// </summary>
         public override string ToString()
-        {
-            return string.Format("Grid with {0} rows and {1} columns.", RowsCount, ColumnsCount);
-        }
-
-
+            => $"Grid with {RowsCount} rows and {ColumnsCount} columns.";
     }
 }

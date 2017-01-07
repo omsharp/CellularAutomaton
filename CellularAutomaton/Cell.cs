@@ -34,9 +34,9 @@ namespace CellularAutomaton
 
         public Cell(int row, int column)
         {
-            Row        = row;
-            Column     = column;
-            State      = CellState.Inactive;
+            Row = row;
+            Column = column;
+            State = CellState.Inactive;
             Generation = 0;
         }
 
@@ -46,42 +46,44 @@ namespace CellularAutomaton
         public void Revive()
         {
             if (State == CellState.Alive)
-                throw new InvalidOperationException("You can't revive an already Alive cell!");
+                throw new InvalidOperationException("You can't revive an already alive cell!");
 
-            State        = CellState.Alive;
-            Generation   = 1;
+            State = CellState.Alive;
+            Generation = 1;
         }
 
         /// <summary>
         /// Kills this cell and sets its Status to Dead and its Generation to 0.
+        /// Throws InvalidOperationException if the cell state is Dead or Inactive.
         /// </summary>
         public void Kill()
         {
             if (State == CellState.Dead)
-                throw new InvalidOperationException("You can't kill a Dead cell!");
+                throw new InvalidOperationException("You can't kill a dead cell!");
 
             if (State == CellState.Inactive)
-                throw new InvalidOperationException("You can't kill an Inactive cell!");
+                throw new InvalidOperationException("You can't kill an inactive cell!");
 
-            State       = CellState.Dead;
-            Generation  = 0;
+            State = CellState.Dead;
+            Generation = 0;
         }
 
         /// <summary>
         /// Evolves this cell a number of times.
-        /// Throws InvalidOperationException if the cell is Dead.
+        /// Throws ArgumentException if the passed parameter is less than 1.
+        /// Throws InvalidOperationException if the cell state is Dead or Inactive.
         /// </summary>
         /// <param name="times">The number of times to evolve.</param>
         public void EvolveFor(int times)
         {
-            if(times < 1)
+            if (times < 1)
                 throw new ArgumentException("Argument must be greater than 0!");
 
             if (State == CellState.Dead)
-                throw new InvalidOperationException("You can't evolve a Dead cell!");
+                throw new InvalidOperationException("You can't evolve a dead cell!");
 
             if (State == CellState.Inactive)
-                throw new InvalidOperationException("You can't evolve an Inactive cell!");
+                throw new InvalidOperationException("You can't evolve an inactive cell!");
 
             Generation += times;
         }
@@ -100,22 +102,17 @@ namespace CellularAutomaton
         /// </summary>
         public override string ToString()
         {
-            return string.Format("[{0},{1}] - {2} - Generation: {3}", Row, Column, State, Generation);
+            return $"[{Row},{Column}] - {State} - Generation: {Generation}";
         }
 
         /// <summary>
         /// Returns a clone of this cell.
         /// </summary>
         public Cell Clone()
-        {
-            /* Simple but works. :)  */
-            var clone = new Cell(Row, Column)
+            => new Cell(Row, Column)
             {
-                State        = State,
-                Generation   = Generation,
+                State = State,
+                Generation = Generation,
             };
-
-            return clone;
-        }
     }
 }

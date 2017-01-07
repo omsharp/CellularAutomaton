@@ -90,33 +90,33 @@ namespace CellularAutomatonTests
             Assert.AreEqual(_cell.Generation, 0);
         }
 
-        [Test]
-        public void TimesRevived_Get_NumberOfRevives()
-        {
-            var expected = 5;
+        //[Test]
+        //public void TimesRevived_Get_NumberOfRevives()
+        //{
+        //    var expected = 5;
 
-            for (var i = 0; i < expected; i++)
-            {
-                _cell.Revive();
-                _cell.Kill();
-            }
+        //    for (var i = 0; i < expected; i++)
+        //    {
+        //        _cell.Revive();
+        //        _cell.Kill();
+        //    }
 
-            Assert.AreEqual(_cell.TimesRevived, expected);
-        }
+        //    Assert.AreEqual(_cell.TimesRevived, expected);
+        //}
 
-        [Test]
-        public void TimesKilled_Get_NumberOfKills()
-        {
-            var expected = 5;
+        //[Test]
+        //public void TimesKilled_Get_NumberOfKills()
+        //{
+        //    var expected = 5;
 
-            for (var i = 0; i < expected; i++)
-            {
-                _cell.Revive();
-                _cell.Kill();
-            }
+        //    for (var i = 0; i < expected; i++)
+        //    {
+        //        _cell.Revive();
+        //        _cell.Kill();
+        //    }
 
-            Assert.AreEqual(_cell.TimesKilled, expected);
-        }
+        //    Assert.AreEqual(_cell.TimesKilled, expected);
+        //}
 
         //[Test]
         //public void Revive_StatusNotAlive_FireRevivedEvent()

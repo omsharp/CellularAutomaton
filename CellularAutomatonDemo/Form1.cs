@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Data;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using CellularAutomaton;
-using System.Linq;
 
 namespace CellularAutomatonDemo
 {
     public partial class MainForm : Form
     {
+        readonly SolidBrush _cellBrush = new SolidBrush(Color.Black);
+
         private int _offset;
         private int _rows;
         private int _cols;
@@ -42,10 +41,10 @@ namespace CellularAutomatonDemo
         private void GetSize()
         {
             _offset = sizeBar.Value;
-            _rows   = canvas.Height / _offset;
-            _cols   = canvas.Width / _offset;
+            _rows = canvas.Height / _offset;
+            _cols = canvas.Width / _offset;
 
-            sizeLbl.Text = string.Format("Cell Size = {0} | Grid Size = {1} x {2}",_offset, _rows, _cols);
+            sizeLbl.Text = $@"Cell Size = {_offset} | Grid Size = {_rows} x {_cols}";
         }
 
         private void MakeNewGrid()
@@ -53,10 +52,12 @@ namespace CellularAutomatonDemo
             GetSize();
             GetSpeed();
 
-            _grid = new CellularGrid(_rows,_cols,_initRule);
-           
-            _grid.WrapBorders = borderCheck.Checked;
-            _grid.Cycled += _grid_Cycled;
+            _grid = new CellularGrid(_rows, _cols, _initRule)
+            {
+                WrapBorders = borderCheck.Checked
+            };
+
+            _grid.Cycled += Grid_Cycled;
 
             AddGameOfLifeRules();
 
@@ -66,7 +67,7 @@ namespace CellularAutomatonDemo
         private void GetSpeed()
         {
             timer.Interval = speedBar.Value;
-            intervalLbl.Text = string.Format("Cycle Interval = Cycle / {0} Milliseconds", timer.Interval);
+            intervalLbl.Text = $@"Cycle Interval = Cycle / {timer.Interval} Milliseconds";
         }
 
         private void AddGameOfLifeRules()
@@ -80,8 +81,6 @@ namespace CellularAutomatonDemo
         {
             canvas.BackColor = linesColorLbl.BackColor;
 
-            var brush = new SolidBrush(Color.Black);
-
             for (var row = 0; row < _rows; row++)
             {
                 for (var col = 0; col < _cols; col++)
@@ -89,62 +88,75 @@ namespace CellularAutomatonDemo
                     switch (_grid.Cells[row, col].State)
                     {
                         case CellState.Alive:
-                            brush.Color = aliveColorLbl.BackColor;
+                            _cellBrush.Color = aliveColorLbl.BackColor;
                             break;
                         case CellState.Inactive:
-                            brush.Color = emptyColorLbl.BackColor;
+                            _cellBrush.Color = emptyColorLbl.BackColor;
                             break;
                         default:
-                            brush.Color = deadColorLbl.BackColor;
+                            _cellBrush.Color = deadColorLbl.BackColor;
                             break;
                     }
-
-                    var x = col * _offset;
-                    var y = row * _offset;
 
                     if (shapeRecRadio.Checked)
                     {
-                        g.FillRectangle(brush,
-                                        _offset * col,
-                                        _offset * row,
-                                        _offset - 1,
-                                        _offset - 1);
-                    } 
+                        DrawRectangleCell(g, col, row);
+                    }
                     else if (shapeCircRadio.Checked)
                     {
-                            g.FillEllipse(brush,
-                                          _offset * col,
-                                          _offset * row,
-                                          _offset - 1,
-                                          _offset - 1);
-
+                        DrawEllipseCell(g, col, row);
                     }
                     else
                     {
-                        var headPointX = x + _offset / 2;
-                        var basePointY = y + _offset;
-                        var basePointX = x + _offset - 1;
-
-                        var triPoints = new PointF[3];
-
-                        triPoints[0] = new PointF(headPointX, y + 1);      //head point
-                        triPoints[1] = new PointF(x + 1, basePointY);      //left base point
-                        triPoints[2] = new PointF(basePointX, basePointY); //right base point
-
-                        g.FillPolygon(brush, triPoints);
+                        DrawTriangleCell(g, col, row);
                     }
-
                 }
             }
         }
 
-        private void _grid_Cycled(object sender, EventArgs e)
+        private void DrawRectangleCell(Graphics g, int col, int row)
         {
-            cyclesTxt.Text     = _grid.Age.ToString();
+            g.FillRectangle(_cellBrush,
+                _offset * col,
+                _offset * row,
+                _offset - 1,
+                _offset - 1);
+        }
+
+        private void DrawEllipseCell(Graphics g, int col, int row)
+        {
+            g.FillEllipse(_cellBrush,
+                _offset * col,
+                _offset * row,
+                _offset - 1,
+                _offset - 1);
+        }
+
+        private void DrawTriangleCell(Graphics g, int col, int row)
+        {
+            var x = col*_offset;
+            var y = row*_offset;
+
+            var headPointX = x + _offset/2;
+            var basePointY = y + _offset;
+            var basePointX = x + _offset - 1;
+
+            var triPoints = new PointF[3];
+
+            triPoints[0] = new PointF(headPointX, y + 1); //head point
+            triPoints[1] = new PointF(x + 1, basePointY); //left base point
+            triPoints[2] = new PointF(basePointX, basePointY); //right base point
+
+            g.FillPolygon(_cellBrush, triPoints);
+        }
+
+        private void Grid_Cycled(object sender, EventArgs e)
+        {
+            cyclesTxt.Text = _grid.Age.ToString();
             populationTxt.Text = _grid.AliveCount.ToString();
-            survivorsTxt.Text  = _grid.LastCycleSurvivors.ToString();
-            newbornsTxt.Text   = _grid.LastCycleNewBorns.ToString();
-            deathsTxt.Text     = _grid.LastCycleDeaths.ToString();
+            survivorsTxt.Text = _grid.LastCycleSurvivors.ToString();
+            newbornsTxt.Text = _grid.LastCycleNewBorns.ToString();
+            deathsTxt.Text = _grid.LastCycleDeaths.ToString();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -153,86 +165,87 @@ namespace CellularAutomatonDemo
             MakeNewGrid();
         }
 
-        private void sizeBar_Scroll(object sender, EventArgs e)
+        private void SizeBar_Scroll(object sender, EventArgs e)
         {
             GetSize();
             MakeNewGrid();
         }
 
-        private void startButton_Click(object sender, EventArgs e)
+        private void StartButton_Click(object sender, EventArgs e)
         {
-            timer.Enabled            = true;
+            timer.Enabled = true;
             elapsedTimer.Enabled = true;
-            sizeBar.Enabled          = false;
+            sizeBar.Enabled = false;
             initialRuleCombo.Enabled = false;
-            pauseButton.Enabled      = true;
-            startButton.Enabled      = false;
+            pauseButton.Enabled = true;
+            startButton.Enabled = false;
 
         }
 
-        private void pauseButton_Click(object sender, EventArgs e)
+        private void PauseButton_Click(object sender, EventArgs e)
         {
             if (timer.Enabled)
             {
                 timer.Enabled = false;
                 elapsedTimer.Enabled = false;
-                pauseButton.Text = "Resume";
+                pauseButton.Text = @"Resume";
             }
             else
             {
                 timer.Enabled = true;
                 elapsedTimer.Enabled = true;
-                pauseButton.Text = "Pause";
+                pauseButton.Text = @"Pause";
             }
         }
 
-        private void resetButton_Click(object sender, EventArgs e)
+        private void ResetButton_Click(object sender, EventArgs e)
         {
             initialRuleCombo.Enabled = true;
-            sizeBar.Enabled          = true;
-            timer.Enabled            = false;
-            elapsedTimer.Enabled     = false;
-            startButton.Enabled      = true;
-            pauseButton.Enabled      = false;
+            sizeBar.Enabled = true;
+            timer.Enabled = false;
+            elapsedTimer.Enabled = false;
+            startButton.Enabled = true;
+            pauseButton.Enabled = false;
 
-            elapsedTxt.Text    = "";
-            cyclesTxt.Text     = "";
+            _elapsedSeconds = 0;
+            elapsedTxt.Text = "";
+            cyclesTxt.Text = "";
             populationTxt.Text = "";
-            survivorsTxt.Text  = "";
-            newbornsTxt.Text   = "";
-            deathsTxt.Text     = "";
+            survivorsTxt.Text = "";
+            newbornsTxt.Text = "";
+            deathsTxt.Text = "";
 
             MakeNewGrid();
         }
 
-        private void speedBar_Scroll(object sender, EventArgs e)
+        private void SpeedBar_Scroll(object sender, EventArgs e)
         {
             GetSpeed();
         }
 
-        private void borderCheck_CheckedChanged(object sender, EventArgs e)
+        private void BorderCheck_CheckedChanged(object sender, EventArgs e)
         {
             _grid.WrapBorders = borderCheck.Checked;
         }
 
-        private void initialRuleCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void InitialRuleCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             _initRule = initialRuleCombo.SelectedItem as IRule;
             MakeNewGrid();
         }
 
-        private void canvas_Paint(object sender, PaintEventArgs e)
+        private void Canvas_Paint(object sender, PaintEventArgs e)
         {
             DrawGrid(e.Graphics);
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
             _grid.NextCycle();
             canvas.Refresh();
         }
 
-        private void elapsedTimer_Tick(object sender, EventArgs e)
+        private void ElapsedTimer_Tick(object sender, EventArgs e)
         {
             _elapsedSeconds++;
             elapsedTxt.Text = _elapsedSeconds.ToString();
@@ -240,9 +253,9 @@ namespace CellularAutomatonDemo
 
         private void ColorHandler(object sender, EventArgs e)
         {
-            if(colorDialog.ShowDialog() == DialogResult.Cancel)
+            if (colorDialog.ShowDialog() == DialogResult.Cancel)
                 return;
-            
+
             ((Label)sender).BackColor = colorDialog.Color;
             canvas.Refresh();
         }
@@ -263,21 +276,20 @@ namespace CellularAutomatonDemo
                 }
                 else if (e.Button == MouseButtons.Right)
                 {
-
                     if (_grid.Cells[row, col].State == CellState.Alive)
-                        _grid.Cells[row, col] = new Cell(row,col);
+                        _grid.Cells[row, col] = new Cell(row, col);
 
                     canvas.Refresh();
                 }
             }
         }
 
-        private void shapeCircRadio_CheckedChanged(object sender, EventArgs e)
+        private void CellShapeRadio_CheckedChanged(object sender, EventArgs e)
         {
             canvas.Refresh();
         }
     }
 
-   
+
 
 }
